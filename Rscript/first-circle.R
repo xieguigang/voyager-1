@@ -3,8 +3,9 @@ imports "wav" from "signalKit";
 
 const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
 
-# R script for image parameter calibration
-
+# A demo R# script for image decode from the goden record wave data
+# this very first circle image on the goden record is used for 
+# parameter calibration of the image decoder
 using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 	# view of the raw file data summary;
 	print(wav);
