@@ -16,8 +16,9 @@ Module Rscript
         Dim samples = wav.data.LoadSamples(chunk.start, chunk.length, scan0:=8).ToArray
         Dim data As Single() = chunk.GetSampleData(samples).PreProcessing
         Dim aligns As New List(Of Integer)
-        Dim pixelScan As Single()() = ImageDecoder.GetScan(data, decode, aligns).ToArray
-        Dim bitmap As Bitmap = ImageDecoder.DecodeBitmap(pixelScan, pixelScan.Length, aligns)
+        Dim khz As Integer = wav.fmt.SampleRate / 1000
+        Dim pixelScan As Single()() = ImageDecoder.GetScan(data, decode, aligns, khzRate:=khz).ToArray
+        Dim bitmap As Bitmap = ImageDecoder.DecodeBitmap(pixelScan, pixelScan.Length, khz, aligns)
 
         Return bitmap
     End Function

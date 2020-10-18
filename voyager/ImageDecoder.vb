@@ -8,10 +8,8 @@ Imports Microsoft.VisualBasic.Linq
 
 Module ImageDecoder
 
-    Const size As Integer = 370
-
     <Extension>
-    Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer)) As IEnumerable(Of Single())
+    Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer), khzRate As Integer) As IEnumerable(Of Single())
         Dim align As Integer
         Dim index As Integer = 0
         Dim ncols As Integer = Math.Floor(data.Length / args.windowSize)
@@ -26,18 +24,18 @@ Module ImageDecoder
 
             ' trim buffer
             buffer = buffer.Skip(start).Take(ends - start).ToArray
-            align = Math.Floor((ends - start) / size)
+            align = Math.Floor((ends - start) / khzRate)
             index += ends
             aligns += align
 
-            Yield buffer.pixels(align)
+            Yield buffer.pixels(align, khzRate)
         Next
     End Function
 
     <Extension>
-    Private Function pixels(data As Single(), align As Integer) As Single()
+    Private Function pixels(data As Single(), align As Integer, khzRate As Integer) As Single()
         Dim index As i32 = Scan0
-        Dim sum As Single() = New Single(size - 1) {}
+        Dim sum As Single() = New Single(khzRate - 1) {}
 
         For j As Integer = 0 To sum.Length - 1
             For i As Integer = 0 To align - 1
@@ -55,13 +53,13 @@ Module ImageDecoder
     ''' <param name="width"></param>
     ''' <param name="aligns"></param>
     ''' <returns></returns>
-    Public Function DecodeBitmap(scans As Single()(), width As Integer, aligns As Integer()) As Bitmap
+    Public Function DecodeBitmap(scans As Single()(), width As Integer, khzRate As Integer, aligns As Integer()) As Bitmap
         Dim x As Integer = 0
         Dim y As i32 = Scan0
         Dim c As Color
         Dim alignIndex As i32 = Scan0
 
-        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, size, PixelFormat.Format32bppArgb))
+        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, khzRate, PixelFormat.Format32bppArgb))
             For Each columnScan As Single() In scans
                 Dim align As Integer = aligns(++alignIndex)
 
