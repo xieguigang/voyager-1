@@ -1,0 +1,3 @@
+﻿Module ImageDecoder
+
+End Module

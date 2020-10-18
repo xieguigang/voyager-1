@@ -108,6 +108,9 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImageDecoder.vb" />
+    <Compile Include="Models\ImageChunk.vb" />
+    <Compile Include="WaveProcessor.vb" />
     <Compile Include="Rscript.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">

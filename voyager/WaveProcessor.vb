@@ -1,0 +1,3 @@
+﻿Module WaveProcessor
+
+End Module
