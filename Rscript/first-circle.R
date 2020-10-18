@@ -1,9 +1,9 @@
 imports "voyager1" from "voyager";
 imports "wav" from "signalKit";
 
-# R script for image parameter calibration
-
 const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
+
+# R script for image parameter calibration
 
 using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 	# view of the raw file data summary;
@@ -16,6 +16,6 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 
 	wav 
 	:> decode(chunk = first_circle, decode = decoder)
-	:> bitmap(file = "../docs/circle.png")
+	:> bitmap(file = `${dirname(!script$dir)}/docs/circle.png`)
 	;
 }

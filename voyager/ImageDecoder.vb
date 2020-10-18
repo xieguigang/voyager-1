@@ -29,7 +29,7 @@ Module ImageDecoder
         Dim sum As Single() = New Single(383) {}
 
         For j As Integer = 0 To 383
-            For i As Integer = 0 To align - 1
+            For i As Integer = 0 To 4 - 1
                 sum(j) += data(++index)
             Next
         Next
