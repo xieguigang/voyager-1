@@ -18,12 +18,12 @@ Module ImageDecoder
 
             Call Array.ConstrainedCopy(data, ++index, buffer, Scan0, args.windowSize)
 
-            ' Dim start As Integer = Which.Max(buffer.Take(1000))
-            '  Dim ends As Integer = 2500 + Which.Min(buffer.Take(2500))
+            Dim start As Integer = Which.Max(buffer.Take(1000))
+            Dim ends As Integer = 2500 + Which.Min(buffer.Skip(2500))
 
             ' trim buffer
-            ' buffer = buffer.Skip(start).Take(ends - start).ToArray
-            ' align = Math.Ceiling((ends - start) / 384) - 1
+            buffer = buffer.Skip(start).Take(ends - start).ToArray
+            align = Math.Ceiling((ends - start) / 384) - 1
 
             Yield buffer.pixels(align)
         Next
