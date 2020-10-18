@@ -65,5 +65,16 @@ Module Rscript
 
         Return bitmap
     End Function
+
+    ''' <summary>
+    ''' measure the data chunk size of the wav data for current image chunk
+    ''' </summary>
+    ''' <param name="wav"></param>
+    ''' <param name="chunk"></param>
+    ''' <returns></returns>
+    <ExportAPI("chunk_size")>
+    Public Function ChunkSize(wav As WaveFile, chunk As ImageChunk) As Long
+        Return DirectCast(wav.data, LazyDataChunk).MeasureChunkSize(chunk.length)
+    End Function
 End Module
 

@@ -16,6 +16,8 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     let decoder = new decode(windowSize = 3400, offset = 217);
 
     print(first_circle);
+	print("data size of this image chunk:");
+	print(wav :> chunk_size(chunk = first_circle));
 
     # run decoder and save the
     # result image file
