@@ -23,7 +23,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 		
 		image_chunk = new image.chunk(
 			channel = "Left", 
-			start   = as.object(image_chunk)$start + 2312695, 
+			start   = as.object(image_chunk)$start + 2012695, 
 			length  = 1928181
 		);
 	}
