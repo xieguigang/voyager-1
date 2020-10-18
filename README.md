@@ -41,6 +41,10 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 }
 ```
 
-the demo script will output an gray style image that decoded from the wav data and looks like:
+Run the demo script with R# interpreter:
+
+![](docs/scripting.PNG)
+
+then the demo script will output an gray style image that decoded from the wav data and looks like:
 
 ![](docs/circle.png)
