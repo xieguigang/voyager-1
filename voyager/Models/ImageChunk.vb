@@ -1,10 +1,16 @@
-﻿Imports Microsoft.VisualBasic.Data.Wave
+﻿Imports System.Drawing
+Imports Microsoft.VisualBasic.Data.Wave
 
 Public Class ImageChunk
 
     Public Property channel As ChannelPositions
     Public Property start As Integer
     Public Property length As Integer
+    ''' <summary>
+    ''' it is always [364,540] pixels?
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property size As Size
 
     Public Function GetSampleData(samples As IEnumerable(Of Sample)) As Single()
         If channel = ChannelPositions.None OrElse channel = ChannelPositions.Left Then

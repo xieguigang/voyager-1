@@ -8,6 +8,8 @@ Imports Microsoft.VisualBasic.Linq
 
 Module ImageDecoder
 
+    Const size As Integer = 370
+
     <Extension>
     Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer)) As IEnumerable(Of Single())
         Dim align As Integer
@@ -24,7 +26,7 @@ Module ImageDecoder
 
             ' trim buffer
             buffer = buffer.Skip(start).Take(ends - start).ToArray
-            align = Math.Floor((ends - start) / 384)
+            align = Math.Floor((ends - start) / size)
             index += ends
             aligns += align
 
@@ -35,9 +37,9 @@ Module ImageDecoder
     <Extension>
     Private Function pixels(data As Single(), align As Integer) As Single()
         Dim index As i32 = Scan0
-        Dim sum As Single() = New Single(383) {}
+        Dim sum As Single() = New Single(size - 1) {}
 
-        For j As Integer = 0 To 383
+        For j As Integer = 0 To sum.Length - 1
             For i As Integer = 0 To align - 1
                 sum(j) += data(++index)
             Next
@@ -59,7 +61,7 @@ Module ImageDecoder
         Dim c As Color
         Dim alignIndex As i32 = Scan0
 
-        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, 384, PixelFormat.Format32bppArgb))
+        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, size, PixelFormat.Format32bppArgb))
             For Each columnScan As Single() In scans
                 Dim align As Integer = aligns(++alignIndex)
 
