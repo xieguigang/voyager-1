@@ -55,18 +55,42 @@ Imports SMRUCC.Rsharp.Runtime.Interop
 <RTypeExport("decode", GetType(DecoderArgument))>
 Module Rscript
 
+    ''' <summary>
+    ''' Decode the wav data as the pixel scans
+    ''' </summary>
+    ''' <param name="wav"></param>
+    ''' <param name="chunk"></param>
+    ''' <param name="decode"></param>
+    ''' <param name="size"></param>
+    ''' <param name="env"></param>
+    ''' <returns></returns>
     <ExportAPI("decode")>
-    Public Function GetImage(wav As WaveFile, chunk As ImageChunk, decode As DecoderArgument,
-                             Optional size As Integer = 364,
-                             Optional env As Environment = Nothing) As Object
+    <RApiReturn(GetType(PixelDecode))>
+    Public Function GetImageBuffer(wav As WaveFile, chunk As ImageChunk, decode As DecoderArgument,
+                                   Optional size As Integer = 364,
+                                   Optional env As Environment = Nothing) As Object
 
         Dim samples As Sample() = wav.data.LoadSamples(chunk.start, chunk.length, scan0:=8).ToArray
         Dim data As Single() = chunk.GetSampleData(samples).PreProcessing
         Dim aligns As New List(Of Integer)
         Dim pixelScan As Single()() = ImageDecoder.GetScan(data, decode, aligns, khzRate:=size).ToArray
-        Dim bitmap As Bitmap = ImageDecoder.DecodeBitmap(pixelScan, pixelScan.Length, size, aligns)
 
-        Return bitmap
+        Return New PixelDecode With {
+            .pixels = pixelScan,
+            .aligns = aligns.ToArray,
+            .size = size
+        }
+    End Function
+
+    <ExportAPI("as.bitmap")>
+    Public Function CreateBitmap(pixels As PixelDecode, Optional white As Double = 0.0) As Bitmap
+        Return ImageDecoder.DecodeBitmap(
+            scans:=pixels.pixels,
+            width:=pixels.length,
+            khzRate:=pixels.size,
+            aligns:=pixels.aligns,
+            white_threshold:=white
+        )
     End Function
 
     ''' <summary>

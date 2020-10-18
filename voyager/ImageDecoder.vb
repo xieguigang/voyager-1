@@ -96,7 +96,11 @@ Module ImageDecoder
     ''' <param name="width"></param>
     ''' <param name="aligns"></param>
     ''' <returns></returns>
-    Public Function DecodeBitmap(scans As Single()(), width As Integer, khzRate As Integer, aligns As Integer()) As Bitmap
+    Public Function DecodeBitmap(scans As Single()(),
+                                 width As Integer,
+                                 khzRate As Integer,
+                                 aligns As Integer(),
+                                 Optional white_threshold As Double = 0.0) As Bitmap
         Dim x As Integer = 0
         Dim y As i32 = Scan0
         Dim c As Color
@@ -107,7 +111,7 @@ Module ImageDecoder
                 Dim align As Integer = aligns(++alignIndex)
 
                 For i As Integer = 0 To columnScan.Length - 1
-                    If columnScan(i) >= 0 Then
+                    If columnScan(i) >= white_threshold Then
                         c = GDIColors.Greyscale(columnScan(i), align)
                     Else
                         c = Color.White

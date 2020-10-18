@@ -23,6 +23,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     # result image file
     wav 
     :> decode(chunk = first_circle, decode = decoder)
+	:> as.bitmap(white = 1.125)
     :> bitmap(file = `${dirname(!script$dir)}/docs/circle.png`)
     ;
 }
