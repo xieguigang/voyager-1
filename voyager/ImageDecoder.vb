@@ -23,7 +23,7 @@ Module ImageDecoder
 
             ' trim buffer
             buffer = buffer.Skip(start).Take(ends - start).ToArray
-            align = Math.Ceiling((ends - start) / 384) - 1
+            align = Math.Floor((ends - start) / 384)
 
             Yield buffer.pixels(align)
         Next
