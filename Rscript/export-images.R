@@ -10,7 +10,6 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     # and wav decoder arguments
     let image_chunk = new image.chunk(channel = "Left", start = 6000208, length = 1928181);
     let decoder = new decode(windowSize = 3400, offset = 217);
-	let bytesOffset = wav :> chunk_size(image_chunk);
 
 	for(index in 1:100) {
 		# run decoder and save the
@@ -20,9 +19,11 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 		:> bitmap(file = `./test/${index}.png`)
 		;		
 		
+		print(index);
+		
 		image_chunk = new image.chunk(
 			channel = "Left", 
-			start   = as.object(image_chunk)$start + bytesOffset , 
+			start   = as.object(image_chunk)$start + 2312695, 
 			length  = 1928181
 		);
 	}
