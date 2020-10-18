@@ -9,7 +9,7 @@ Imports Microsoft.VisualBasic.Linq
 Module ImageDecoder
 
     <Extension>
-    Public Iterator Function GetScan(data As Single(), args As DecoderArgument) As IEnumerable(Of Single())
+    Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer)) As IEnumerable(Of Single())
         Dim align As Integer
         Dim index As Integer = 0
         Dim ncols As Integer = Math.Floor(data.Length / args.windowSize)
@@ -26,6 +26,7 @@ Module ImageDecoder
             buffer = buffer.Skip(start).Take(ends - start).ToArray
             align = Math.Floor((ends - start) / 384)
             index += ends
+            aligns += align
 
             Yield buffer.pixels(align)
         Next
@@ -50,15 +51,18 @@ Module ImageDecoder
     ''' </summary>
     ''' <param name="scans">the pixels data, is conist with multiple column scans.</param>
     ''' <param name="width"></param>
-    ''' <param name="align"></param>
+    ''' <param name="aligns"></param>
     ''' <returns></returns>
-    Public Function DecodeBitmap(scans As Single()(), width As Integer, align As Integer) As Bitmap
+    Public Function DecodeBitmap(scans As Single()(), width As Integer, aligns As Integer()) As Bitmap
         Dim x As Integer = 0
         Dim y As i32 = Scan0
         Dim c As Color
+        Dim alignIndex As i32 = Scan0
 
         Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, 384, PixelFormat.Format32bppArgb))
             For Each columnScan As Single() In scans
+                Dim align As Integer = aligns(++alignIndex)
+
                 For i As Integer = 0 To columnScan.Length - 1
                     If columnScan(i) >= 0 Then
                         c = GDIColors.Greyscale(columnScan(i), align)
