@@ -14,7 +14,7 @@ Module Rscript
     Public Function GetImage(wav As WaveFile, chunk As ImageChunk, decode As DecoderArgument, Optional env As Environment = Nothing) As Object
         Dim samples = wav.data.LoadSamples(chunk.start, chunk.length).ToArray
         Dim data As Single() = chunk.GetSampleData(samples).PreProcessing
-        Dim align As Integer = 4
+        Dim align As Integer = 8
         Dim pixelScan As Single()() = ImageDecoder.GetScan(data, decode).ToArray
         Dim bitmap As Bitmap = ImageDecoder.DecodeBitmap(pixelScan, 300, align)
 
