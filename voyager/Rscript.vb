@@ -6,12 +6,13 @@ Imports SMRUCC.Rsharp.Runtime.Interop
 
 <Package("voyager1")>
 <RTypeExport("image.chunk", GetType(ImageChunk))>
+<RTypeExport("decode", GetType(DecoderArgument))>
 Module Rscript
 
     <ExportAPI("decode")>
-    Public Function GetImage(wav As WaveFile, chunk As ImageChunk, Optional env As Environment = Nothing) As Object
+    Public Function GetImage(wav As WaveFile, chunk As ImageChunk, decode As DecoderArgument, Optional env As Environment = Nothing) As Object
         Dim samples = wav.data.LoadSamples(chunk.start, chunk.length).ToArray
-        Dim data As Single() = chunk.GetSampleData(samples)
+        Dim data As Single() = chunk.GetSampleData(samples).Invert
 
 
     End Function

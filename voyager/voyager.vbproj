@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ImageDecoder.vb" />
+    <Compile Include="Models\DecoderArgument.vb" />
     <Compile Include="Models\ImageChunk.vb" />
     <Compile Include="WaveProcessor.vb" />
     <Compile Include="Rscript.vb" />
