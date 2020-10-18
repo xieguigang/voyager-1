@@ -10,13 +10,13 @@ Module ImageDecoder
     <Extension>
     Public Iterator Function GetScan(data As Single(), args As DecoderArgument) As IEnumerable(Of Single())
         Dim align As Integer = 8
-        Dim index As i32 = Scan0
-        Dim ncols As Integer = Math.Ceiling(data.Length / args.windowSize)
+        Dim index As Integer = 0
+        Dim ncols As Integer = Math.Floor(data.Length / args.windowSize)
 
         For j As Integer = 0 To ncols - 1
             Dim buffer As Single() = New Single(args.windowSize - 1) {}
 
-            Call Array.ConstrainedCopy(data, ++index, buffer, Scan0, args.windowSize)
+            Call Array.ConstrainedCopy(data, index, buffer, Scan0, args.windowSize)
 
             Dim start As Integer = Which.Max(buffer.Take(1000))
             Dim ends As Integer = 2500 + Which.Min(buffer.Skip(2500))
@@ -24,6 +24,7 @@ Module ImageDecoder
             ' trim buffer
             buffer = buffer.Skip(start).Take(ends - start).ToArray
             align = Math.Floor((ends - start) / 384)
+            index += ends
 
             Yield buffer.pixels(align)
         Next
