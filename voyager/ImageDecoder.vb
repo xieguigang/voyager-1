@@ -2,6 +2,7 @@
 Imports System.Drawing.Imaging
 Imports System.Runtime.CompilerServices
 Imports Microsoft.VisualBasic.Imaging
+Imports Microsoft.VisualBasic.Imaging.BitmapImage
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Linq
 
@@ -9,7 +10,7 @@ Module ImageDecoder
 
     <Extension>
     Public Iterator Function GetScan(data As Single(), args As DecoderArgument) As IEnumerable(Of Single())
-        Dim align As Integer = 8
+        Dim align As Integer
         Dim index As Integer = 0
         Dim ncols As Integer = Math.Floor(data.Length / args.windowSize)
 
@@ -52,33 +53,34 @@ Module ImageDecoder
     ''' <param name="align"></param>
     ''' <returns></returns>
     Public Function DecodeBitmap(scans As Single()(), width As Integer, align As Integer) As Bitmap
-        Dim img As New Bitmap(width, 384, PixelFormat.Format32bppArgb)
-        Dim x = 0
+        Dim x As Integer = 0
         Dim y As i32 = Scan0
         Dim c As Color
 
-        For Each columnScan As Single() In scans
-            For i As Integer = 0 To columnScan.Length - 1
-                If columnScan(i) >= 0 Then
-                    c = GDIColors.Greyscale(columnScan(i), align)
-                Else
-                    c = Color.White
-                End If
+        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, 384, PixelFormat.Format32bppArgb))
+            For Each columnScan As Single() In scans
+                For i As Integer = 0 To columnScan.Length - 1
+                    If columnScan(i) >= 0 Then
+                        c = GDIColors.Greyscale(columnScan(i), align)
+                    Else
+                        c = Color.White
+                    End If
 
-                If y > img.Height - 1 Then
-                    y = 0
-                    x += 1
-                End If
+                    If y > img.Height - 1 Then
+                        y = 0
+                        x += 1
+                    End If
 
-                If x > img.Width - 1 Then
-                    x = 0
-                End If
+                    If x > img.Width - 1 Then
+                        x = 0
+                    End If
 
-                ' the data is a column scan
-                img.SetPixel(x, ++y, c)
+                    ' the data is a column scan
+                    Call img.SetPixel(x, ++y, c)
+                Next
             Next
-        Next
 
-        Return img
+            Return img.GetImage
+        End Using
     End Function
 End Module
