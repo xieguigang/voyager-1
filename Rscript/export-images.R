@@ -11,12 +11,14 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     let image_chunk = new image.chunk(channel = "Left", start = 6000208, length = 1928181);
     let decoder = new decode(windowSize = 3400, offset = 217);
 
-	for(index in 1:1000) {
+	# try to decode all images in the wav files
+	# its left channel
+	for(index in 1:10000) {
 		# run decoder and save the
 		# result image file
 		wav 
-		:> decode(chunk = image_chunk, decode = decoder)
-		:> as.bitmap(white = 1.125)
+		:> decode(chunk = image_chunk, decode = decoder, size = 384)
+		:> as.bitmap(white = 0)
 		:> bitmap(file = `./test/${index}.png`)
 		;		
 		
@@ -24,7 +26,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 		
 		image_chunk = new image.chunk(
 			channel = "Left", 
-			start   = as.object(image_chunk)$start + 100281, 
+			start   = as.object(image_chunk)$start + 200281, 
 			length  = 1928181
 		);
 	}
