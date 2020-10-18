@@ -13,6 +13,7 @@ this repository contains the necessary code for R# scripting to decode the image
 Here is an example ``R#`` script for decode the first circle image in the goden record:
 
 ```R
+# R# "E:\voyager-1\Rscript\first-circle.R" --debug --ignore-missing-startup-packages
 imports "voyager1" from "voyager";
 imports "wav" from "signalKit";
 
