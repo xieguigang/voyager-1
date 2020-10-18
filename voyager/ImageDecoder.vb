@@ -8,19 +8,24 @@ Imports Microsoft.VisualBasic.Linq
 Module ImageDecoder
 
     <Extension>
-    Public Function GetScan(data As Single(), index As Integer, args As DecoderArgument, ByRef align As Integer) As Single()
-        Dim buffer As Single() = New Single(args.windowSize - 1) {}
+    Public Iterator Function GetScan(data As Single(), args As DecoderArgument) As IEnumerable(Of Single())
+        Dim align As Integer
+        Dim index As i32 = Scan0
 
-        Call Array.ConstrainedCopy(data, index, buffer, Scan0, args.windowSize)
+        For j As Integer = 0 To data.Length / args.windowSize - 1
+            Dim buffer As Single() = New Single(args.windowSize - 1) {}
 
-        Dim start As Integer = Which.Max(buffer)
-        Dim ends As Integer = (buffer.Length \ 2) + Which.Min(buffer.Take(buffer.Length \ 2))
+            Call Array.ConstrainedCopy(data, ++index, buffer, Scan0, args.windowSize)
 
-        ' trim buffer
-        buffer = buffer.Skip(start).Take(ends - start).ToArray
-        align = (ends - start) / 384
+            Dim start As Integer = Which.Max(buffer)
+            Dim ends As Integer = (buffer.Length \ 2) + Which.Min(buffer.Take(buffer.Length \ 2))
 
-        Return buffer.pixels(align)
+            ' trim buffer
+            buffer = buffer.Skip(start).Take(ends - start).ToArray
+            align = (ends - start) / 384
+
+            Yield buffer.pixels(align)
+        Next
     End Function
 
     <Extension>
@@ -40,34 +45,36 @@ Module ImageDecoder
     ''' <summary>
     ''' 
     ''' </summary>
-    ''' <param name="scan">the pixels data, is conist with multiple column scans.</param>
+    ''' <param name="scans">the pixels data, is conist with multiple column scans.</param>
     ''' <param name="width"></param>
     ''' <param name="align"></param>
     ''' <returns></returns>
-    Public Function DecodeBitmap(scan As Single(), width As Integer, align As Integer) As Bitmap
+    Public Function DecodeBitmap(scans As Single()(), width As Integer, align As Integer) As Bitmap
         Dim img As New Bitmap(width, 384, PixelFormat.Format32bppArgb)
         Dim x = 0
         Dim y As i32 = Scan0
         Dim c As Color
 
-        For i As Integer = 0 To scan.Length - 1
-            If scan(i) >= 0 Then
-                c = GDIColors.Greyscale(scan(i), align)
-            Else
-                c = Color.White
-            End If
+        For Each columnScan As Single() In scans
+            For i As Integer = 0 To columnScan.Length - 1
+                If columnScan(i) >= 0 Then
+                    c = GDIColors.Greyscale(columnScan(i), align)
+                Else
+                    c = Color.White
+                End If
 
-            If y > img.Height - 1 Then
-                y = 0
-                x += 1
-            End If
+                If y > img.Height - 1 Then
+                    y = 0
+                    x += 1
+                End If
 
-            If x > img.Width - 1 Then
-                x = 0
-            End If
+                If x > img.Width - 1 Then
+                    x = 0
+                End If
 
-            ' the data is a column scan
-            img.SetPixel(x, ++y, c)
+                ' the data is a column scan
+                img.SetPixel(x, ++y, c)
+            Next
         Next
 
         Return img
