@@ -2,7 +2,7 @@
 
 Voyager 1 is a space probe that was launched by NASA on September 5, 1977. Part of the Voyager program to study the outer Solar System, Voyager 1 was launched 16 days after its twin, Voyager 2. --[Wikipedia](https://en.wikipedia.org/wiki/Voyager_1)
 
-![](docs/1080px-The_Sounds_of_Earth_Record_Cover_-_GPN-2000-001978.jpg)
+<img src="docs/1080px-The_Sounds_of_Earth_Record_Cover_-_GPN-2000-001978.jpg" style="max-width: 300px;" />
 
 this repository contains the necessary code for R# scripting to decode the image data on the Voyager Golden Record.
 
