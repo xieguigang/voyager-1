@@ -33,14 +33,14 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     let decoder = new decode(windowSize = 3400, offset = 217);
 
     print(first_circle);
-	print("data size of this image chunk:");
-	print(wav :> chunk_size(chunk = first_circle));
+    print("data size of this image chunk:");
+    print(wav :> chunk_size(chunk = first_circle));
 
     # run decoder and save the
     # result image file
     wav 
     :> decode(chunk = first_circle, decode = decoder)
-	:> as.bitmap(white = 1.125)
+    :> as.bitmap(white = 1.125)
     :> bitmap(file = `${dirname(!script$dir)}/docs/circle.png`)
     ;
 }
