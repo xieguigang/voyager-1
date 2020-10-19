@@ -14,6 +14,7 @@ Here is an example ``R#`` script for decode the first circle image in the goden 
 
 ```R
 # R# "E:\voyager-1\Rscript\first-circle.R" --debug --ignore-missing-startup-packages
+
 imports "voyager1" from "voyager";
 imports "wav" from "signalKit";
 
@@ -32,11 +33,14 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     let decoder = new decode(windowSize = 3400, offset = 217);
 
     print(first_circle);
+	print("data size of this image chunk:");
+	print(wav :> chunk_size(chunk = first_circle));
 
     # run decoder and save the
     # result image file
     wav 
     :> decode(chunk = first_circle, decode = decoder)
+	:> as.bitmap(white = 1.125)
     :> bitmap(file = `${dirname(!script$dir)}/docs/circle.png`)
     ;
 }
@@ -46,6 +50,8 @@ Run the demo script with R# interpreter:
 
 ![](docs/scripting.PNG)
 
-then the demo script will output an gray style image that decoded from the wav data and looks like:
+then the demo script should output an grayscale image that decoded from the wav data and looks like:
 
 ![](docs/circle.png)
+
+at last you could fine tuning the result image output in photoshop to make it more clarity.
