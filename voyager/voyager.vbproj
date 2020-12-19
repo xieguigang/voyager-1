@@ -79,7 +79,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\Apps\</OutputPath>
+    <OutputPath>..\dist\assembly\</OutputPath>
     <DocumentationFile>voyager.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <DebugType>full</DebugType>
@@ -154,10 +154,6 @@
     <ProjectReference Include="..\..\GCModeller\src\R-sharp\R#\R.vbproj">
       <Project>{0c2eb77c-39f2-460d-a3f8-ce905f867637}</Project>
       <Name>R</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\GCModeller\src\R-sharp\studio\R-terminal\R-cmd.vbproj">
-      <Project>{3a35ac34-f313-4f72-89e9-eacca217bc8d}</Project>
-      <Name>R-cmd</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\GCModeller\src\runtime\sciBASIC#\Data\BinaryData\BinaryData\BinaryData.vbproj">
       <Project>{487d7c92-d05a-4908-bf81-e6baba0bf592}</Project>
