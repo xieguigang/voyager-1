@@ -1,0 +1,12 @@
+Package: voyager1
+Type: Package
+Title: decode the goden record disk on voyager1 space ship.
+Version: 1.0.0.1254
+Date: 2020-12-20
+Author: xieguigang
+Maintainer: xieguigang <i@xieguigang.me>
+Description: Voyager 1 is a space probe that was launched by NASA on September 5, 1977. 
+   Part of the Voyager program to study the outer Solar System, Voyager 1 was launched 
+   16 days after its twin, Voyager 2.
+License: MIT
+RoxygenNote: 7.1.1
