@@ -19,7 +19,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 		wav 
 		:> decode(chunk = image_chunk, decode = decoder, size = 384)
 		:> as.bitmap(white = 0)
-		:> bitmap(file = `./test/${index}.png`)
+		:> bitmap(file = `./test/${as.object(image_chunk)$start}.png`)
 		;		
 		
 		print(index);
