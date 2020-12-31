@@ -6,6 +6,6 @@ require(voyager1);
 const goldenRecord as string = "J:/GoogleDrive/Voyager/384kHzStereo.wav";
 const demo_saveImg as string = `${!script$dir}/circle.png`;
 
-decodeImage(6000208, wavFile = goldenRecord) 		
+decodeImage(6000208, wavFile = goldenRecord, offsetLeft = 0.2, offsetRight = 0.2, white = 0) 		
 :> bitmap(file = demo_saveImg)
 ;
