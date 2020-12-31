@@ -1,7 +1,9 @@
+require(voyager1);
+
 imports "voyager1" from "voyager";
 imports "wav" from "signalKit";
 
-const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
+# const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
 
 # A demo R# script for image decode from the goden record wave data
 # this very first circle image on the goden record is used for 
@@ -12,8 +14,8 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 
     # parameters of the first circle image
     # and wav decoder arguments
-    let first_circle = new image.chunk(channel = "Left", start = 6000208, length = 1928181);
-    let decoder = new decode(windowSize = 3400, offset = 217);
+    let first_circle = new image.chunk(channel = "Left", start = 6000000, length = 1800000);
+    let decoder = new decode(windowSize = 3400, offset = 384);
 
     print(first_circle);
 	print("data size of this image chunk:");
@@ -22,7 +24,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     # run decoder and save the
     # result image file
     wav 
-    :> decode(chunk = first_circle, decode = decoder)
+    :> decode(chunk = first_circle, decode = decoder, offsetLeft = 0.15, offsetRight = 0.1)
 	:> as.bitmap(white = 1.125)
     :> bitmap(file = `${dirname(!script$dir)}/docs/circle.png`)
     ;
