@@ -10,7 +10,7 @@ imports "wav" from "signalKit";
 #' 
 #' @return a bitmap image object
 #' 
-let decodeImage as function(start as integer, wavFile as string) {
+let decodeImage as function(start as integer, wavFile as string, offsetLeft = 0.15, offsetRight = 0.1) {
 	using wav as read.wav(file = file(wavFile), lazy = TRUE) {
 		# view of the raw file data summary;
 		print(wav);
@@ -26,7 +26,12 @@ let decodeImage as function(start as integer, wavFile as string) {
 		# run decoder and save the
 		# result image file
 		wav 
-		:> decode(chunk = chunk, decode = decoder, offsetLeft = 0.15, offsetRight = 0.1)
+		:> decode(
+			chunk       = chunk, 
+			decode      = decoder, 
+			offsetLeft  = offsetLeft, 
+			offsetRight = offsetRight
+		)
 		:> as.bitmap(white = 1.125)
 		;
 	}

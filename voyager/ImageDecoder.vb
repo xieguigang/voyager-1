@@ -123,7 +123,7 @@ Module ImageDecoder
             For Each columnScan As Single() In scans
                 For i As Integer = 0 To columnScan.Length - 1
                     grayAlpha = globalRange.ScaleMapping(columnScan(i), alphaRange)
-                    c = Color.FromArgb(grayAlpha, 0, 0, 0)
+                    c = Color.FromArgb(255 - grayAlpha, 0, 0, 0)
 
                     If y > img.Height - 1 Then
                         y = 0
