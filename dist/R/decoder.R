@@ -3,6 +3,13 @@ imports "wav" from "signalKit";
 
 # const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
 
+#' Decode a grayscale image on the disk
+#' 
+#' @param start the data start position on the raw wav file
+#' @param wavFile the file path of the wav file
+#' 
+#' @return a bitmap image object
+#' 
 let decodeImage as function(start as integer, wavFile as string) {
 	using wav as read.wav(file = file(wavFile), lazy = TRUE) {
 		# view of the raw file data summary;
