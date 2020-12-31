@@ -1,2 +1,9 @@
 # R# first-circle.R --attach voyager1_1.0.0.1254.zip
-decodeImage(6000208, wavFile = goldenRecord, saveImg = `${!script$dir}/circle.png`);
+
+# raw wav data
+const goldenRecord as string = "J:/GoogleDrive/Voyager/384kHzStereo.wav";
+const demo_saveImg as string = `${!script$dir}/circle.png`;
+
+decodeImage(6000208, wavFile = goldenRecord) 		
+:> bitmap(file = demo_saveImg)
+;

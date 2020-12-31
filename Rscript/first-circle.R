@@ -3,7 +3,7 @@ require(voyager1);
 imports "voyager1" from "voyager";
 imports "wav" from "signalKit";
 
-# const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
+const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
 
 # A demo R# script for image decode from the goden record wave data
 # this very first circle image on the goden record is used for 
