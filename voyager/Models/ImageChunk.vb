@@ -57,6 +57,11 @@ Public Class ImageChunk
     ''' <returns></returns>
     Public Property size As Size
 
+    ''' <summary>
+    ''' get wave data on left channel or right channel 
+    ''' </summary>
+    ''' <param name="samples"></param>
+    ''' <returns></returns>
     Public Function GetSampleData(samples As IEnumerable(Of Sample)) As Single()
         If channel = ChannelPositions.None OrElse channel = ChannelPositions.Left Then
             Return samples.Select(Function(d) d.left).ToArray

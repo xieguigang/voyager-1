@@ -46,7 +46,6 @@ Imports Microsoft.VisualBasic.CommandLine.Reflection
 Imports Microsoft.VisualBasic.Data.Wave
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Scripting.MetaData
-Imports Microsoft.VisualBasic.Scripting.Runtime
 Imports SMRUCC.Rsharp.Runtime
 Imports SMRUCC.Rsharp.Runtime.Interop
 
@@ -68,12 +67,23 @@ Module Rscript
     <RApiReturn(GetType(PixelDecode))>
     Public Function GetImageBuffer(wav As WaveFile, chunk As ImageChunk, decode As DecoderArgument,
                                    Optional size As Integer = 364,
+                                   Optional offsetLeft# = 0.2,
+                                   Optional offsetRight# = 0.2,
                                    Optional env As Environment = Nothing) As Object
 
-        Dim samples As Sample() = wav.data.LoadSamples(chunk.start, chunk.length, scan0:=8).ToArray
+        Dim samples As Sample() = wav.data _
+            .LoadSamples(chunk.start, chunk.length, scan0:=8) _
+            .ToArray
         Dim data As Single() = chunk.GetSampleData(samples).PreProcessing
         Dim aligns As New List(Of Integer)
-        Dim pixelScan As Single()() = ImageDecoder.GetScan(data, decode, aligns, khzRate:=size).ToArray
+        Dim pixelScan As Single()() = ImageDecoder.GetScan(
+            data:=data,
+            args:=decode,
+            aligns:=aligns,
+            khzRate:=size,
+            offsetLeft:=offsetLeft,
+            offsetRight:=offsetRight
+        ).ToArray
 
         Return New PixelDecode With {
             .pixels = pixelScan,
@@ -83,13 +93,11 @@ Module Rscript
     End Function
 
     <ExportAPI("as.bitmap")>
-    Public Function CreateBitmap(pixels As PixelDecode, Optional white As Double = 0.0) As Bitmap
+    Public Function CreateBitmap(pixels As PixelDecode) As Bitmap
         Return ImageDecoder.DecodeBitmap(
             scans:=pixels.pixels,
             width:=pixels.length,
-            khzRate:=pixels.size,
-            aligns:=pixels.aligns,
-            white_threshold:=white
+            khzRate:=pixels.size
         )
     End Function
 
