@@ -6,7 +6,7 @@ Voyager 1 is a space probe that was launched by NASA on September 5, 1977. Part 
 
 this repository contains the necessary code for R# scripting to decode the image data on the Voyager Golden Record.
 
-> **Credits**: the test wav file data is comes from the project repository: [Voyager-Golden-Record-Decoder](https://github.com/mmcc1/Voyager-Golden-Record-Decoder).
+> **Credits**: the test wav file data and part of the decoder algorithm implementation is comes from the project repository: [Voyager-Golden-Record-Decoder](https://github.com/mmcc1/Voyager-Golden-Record-Decoder).
 
 # demo and library usage
 
