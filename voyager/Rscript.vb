@@ -49,7 +49,7 @@ Imports Microsoft.VisualBasic.Scripting.MetaData
 Imports SMRUCC.Rsharp.Runtime
 Imports SMRUCC.Rsharp.Runtime.Interop
 
-<Package("voyager1")>
+<Package("goldenRecord")>
 <RTypeExport("image.chunk", GetType(ImageChunk))>
 <RTypeExport("decode", GetType(DecoderArgument))>
 Module Rscript
