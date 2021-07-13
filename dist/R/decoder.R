@@ -1,4 +1,4 @@
-imports "voyager1" from "voyager";
+imports "goldenRecord" from "voyager";
 imports "wav" from "signalKit";
 
 # const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
@@ -10,7 +10,7 @@ imports "wav" from "signalKit";
 #' 
 #' @return a bitmap image object
 #' 
-let decodeImage as function(start as integer, wavFile as string, offsetLeft = 0.15, offsetRight = 0.1, white = 0.8) {
+let decodeImage as function(start as integer, wavFile as string, offsetLeft = 0.15, offsetRight = 0.1, white = 0.8, luminous = FALSE) {
 	using wav as read.wav(file = file(wavFile), lazy = TRUE) {
 		# view of the raw file data summary;
 		print(wav);
@@ -32,7 +32,7 @@ let decodeImage as function(start as integer, wavFile as string, offsetLeft = 0.
 			offsetLeft  = offsetLeft, 
 			offsetRight = offsetRight
 		)
-		:> as.bitmap(white = white)
+		:> as.bitmap(white = white, luminous = luminous)
 		;
 	}
 }

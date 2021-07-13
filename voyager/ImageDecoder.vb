@@ -123,7 +123,7 @@ Module ImageDecoder
             For Each columnScan As Single() In scans
                 For i As Integer = 0 To columnScan.Length - 1
                     If luminous Then
-                        c = Color.FromArgb(CInt(columnScan(i) * 20000))
+                        c = Color.FromArgb(CInt(globalRange.ScaleMapping(columnScan(i), {0, 20000})))
                     Else
                         grayAlpha = globalRange.ScaleMapping(columnScan(i), alphaRange)
                         grayAlpha = 255 - grayAlpha
