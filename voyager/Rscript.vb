@@ -93,11 +93,12 @@ Module Rscript
     End Function
 
     <ExportAPI("as.bitmap")>
-    Public Function CreateBitmap(pixels As PixelDecode) As Bitmap
+    Public Function CreateBitmap(pixels As PixelDecode, Optional luminous As Boolean = False) As Bitmap
         Return ImageDecoder.DecodeBitmap(
             scans:=pixels.pixels,
             width:=pixels.length,
-            khzRate:=pixels.size
+            khzRate:=pixels.size,
+            luminous:=luminous
         )
     End Function
 

@@ -102,7 +102,7 @@ Module ImageDecoder
     ''' <param name="scans">the pixels data, is conist with multiple column scans.</param>
     ''' <param name="width"></param>
     ''' <returns></returns>
-    Public Function DecodeBitmap(scans As Single()(), width As Integer, khzRate As Integer) As Bitmap
+    Public Function DecodeBitmap(scans As Single()(), width As Integer, khzRate As Integer, Optional luminous As Boolean = False) As Bitmap
         Dim x As Integer = 0
         Dim y As i32 = Scan0
         Dim c As Color
@@ -122,10 +122,14 @@ Module ImageDecoder
         Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, khzRate, PixelFormat.Format32bppArgb))
             For Each columnScan As Single() In scans
                 For i As Integer = 0 To columnScan.Length - 1
-                    grayAlpha = globalRange.ScaleMapping(columnScan(i), alphaRange)
-                    grayAlpha = 255 - grayAlpha
+                    If luminous Then
+                        c = Color.FromArgb(CInt(columnScan(i) * 20000))
+                    Else
+                        grayAlpha = globalRange.ScaleMapping(columnScan(i), alphaRange)
+                        grayAlpha = 255 - grayAlpha
 
-                    c = Color.FromArgb(grayAlpha, 0, 0, 0)
+                        c = Color.FromArgb(grayAlpha, 0, 0, 0)
+                    End If
 
                     If y > img.Height - 1 Then
                         y = 0
