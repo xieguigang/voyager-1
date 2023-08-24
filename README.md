@@ -15,7 +15,7 @@ Here is an example ``R#`` script for decode the first circle image in the goden 
 ```R
 # R# "E:\voyager-1\Rscript\first-circle.R" --debug --ignore-missing-startup-packages
 
-imports "voyager1" from "voyager";
+imports "voyager1" from "voyager-1";
 imports "wav" from "signalKit";
 
 const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
