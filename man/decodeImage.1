@@ -1,23 +1,34 @@
-﻿.TH DECODEIMAGE 1 2021-01-01 "" "Decode a grayscale image on the disk"
+﻿.TH DECODEIMAGE 1 2023-Aug "" "Decode a grayscale image on the disk"
 .SH NAME
-decodeImage \- decodeImage(start, wavFile, offsetLeft = 0.15, offsetRight = 0.1, white = 0.8)
+decodeImage \- decodeImage(start, wavFile,
+    <i>offsetLeft</i> = <span style='color: green;'>0.15</span>,
+    <i>offsetRight</i> = <span style='color: green;'>0.1</span>,
+    <i>white</i> = <span style='color: green;'>0.8</span>,
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>)
 .SH SYNOPSIS
-\fIdecodeImage(start, wavFile, offsetLeft = 0.15, offsetRight = 0.1, white = 0.8)\fR
+\fIdecodeImage(start, wavFile,
+    <i>offsetLeft</i> = <span style='color: green;'>0.15</span>,
+    <i>offsetRight</i> = <span style='color: green;'>0.1</span>,
+    <i>white</i> = <span style='color: green;'>0.8</span>,
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>)\fR
 .SH OPTIONS
 .PP
-\fBstart\fB \fR\- 
+\fBstart\fB \fR\- . the data start position on the raw wav file
 .PP
 .PP
-\fBwavFile\fB \fR\- 
+\fBwavFile\fB \fR\- . the file path of the wav file
 .PP
 .PP
-\fBoffsetLeft\fB \fR\- 0.15
+\fBoffsetLeft\fB \fR\- 0.15. 
 .PP
 .PP
-\fBoffsetRight\fB \fR\- 0.1
+\fBoffsetRight\fB \fR\- 0.1. 
 .PP
 .PP
-\fBwhite\fB \fR\- 0.8
+\fBwhite\fB \fR\- 0.8. 
+.PP
+.PP
+\fBluminous\fB \fR\- FALSE. 
 .PP
 .SH VALUE
 .PP
@@ -28,4 +39,4 @@ a bitmap image object
 SMRUCC/R#.declare_function.decodeImage at decoder.R:line 13
 .PP
 .SH COPYRIGHT
-Copyright © xieguigang, MIT Licensed 2021
+Copyright © xieguigang, MIT Licensed 2023
