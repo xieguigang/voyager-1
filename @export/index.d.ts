@@ -6,6 +6,9 @@ declare namespace voyager1 {
    module _ {
       /**
       */
+      function export_chunk(wav: any, chunk_name: any): object;
+      /**
+      */
       function onload(): object;
    }
    data_chunks: any;
