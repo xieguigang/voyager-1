@@ -49,6 +49,11 @@ Imports Microsoft.VisualBasic.Scripting.MetaData
 Imports SMRUCC.Rsharp.Runtime
 Imports SMRUCC.Rsharp.Runtime.Interop
 
+#If NET8_0_OR_GREATER Then
+Imports Bitmap = Microsoft.VisualBasic.Imaging.Bitmap
+#Else
+#End If
+
 <Package("goldenRecord")>
 <RTypeExport("image.chunk", GetType(ImageChunk))>
 <RTypeExport("decode", GetType(DecoderArgument))>

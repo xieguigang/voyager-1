@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "graphics", "graphics", "{BE
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Drawing-net4.8", "..\GCModeller\src\runtime\sciBASIC#\gr\Drawing-net4.8\Drawing-net4.8.vbproj", "{A5E86229-03BF-4148-A518-D11570DBA872}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "R_graphics.common_runtime", "..\GCModeller\src\R-sharp\Library\shares\graphics.common_runtime\R_graphics.common_runtime.vbproj", "{A5DB665A-460E-484E-A9C5-550D55F60124}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -671,6 +673,66 @@ Global
 		{A5E86229-03BF-4148-A518-D11570DBA872}.Rsharp_app_release|x64.Build.0 = Release|x64
 		{A5E86229-03BF-4148-A518-D11570DBA872}.Rsharp_app_release|x86.ActiveCfg = Release|Any CPU
 		{A5E86229-03BF-4148-A518-D11570DBA872}.Rsharp_app_release|x86.Build.0 = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Debug|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Docker|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.gcmodeller_desktop|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.LipidSearch|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit_win32|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.mzkit|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.NPSearch|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|Any CPU.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|x64.ActiveCfg = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|x64.Build.0 = Debug|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|x86.ActiveCfg = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.PlantMAT|x86.Build.0 = Debug|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|x64.ActiveCfg = Release|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|x64.Build.0 = Release|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|x86.ActiveCfg = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Release|x86.Build.0 = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|Any CPU.Build.0 = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|x64.ActiveCfg = Release|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|x64.Build.0 = Release|x64
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|x86.ActiveCfg = Release|Any CPU
+		{A5DB665A-460E-484E-A9C5-550D55F60124}.Rsharp_app_release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -690,6 +752,7 @@ Global
 		{6E51A4D5-82A0-464E-8C75-FE733B905866} = {D7C28140-F61C-4184-9C0A-33E6EAE9FD42}
 		{BEBD89F5-6AD3-4724-8CEB-603AC5507E3F} = {E105E544-0A9A-429A-B6F2-0D9930EEE5BB}
 		{A5E86229-03BF-4148-A518-D11570DBA872} = {BEBD89F5-6AD3-4724-8CEB-603AC5507E3F}
+		{A5DB665A-460E-484E-A9C5-550D55F60124} = {7CA4C2D5-4615-4CDB-BC57-A48CE3D3DE52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F3147C19-2FF7-4B83-BA43-08DF0D36409C}

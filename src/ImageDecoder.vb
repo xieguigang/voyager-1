@@ -49,6 +49,11 @@ Imports Microsoft.VisualBasic.Imaging.BitmapImage
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Linq
 
+#If NET8_0_OR_GREATER Then
+Imports Bitmap = Microsoft.VisualBasic.Imaging.Bitmap
+#Else
+#End If
+
 Module ImageDecoder
 
     <Extension>
@@ -118,8 +123,15 @@ Module ImageDecoder
         Dim globalRange As New DoubleRange(globalMin, globalMax)
         Dim alphaRange As DoubleRange = New Double() {0, 255}
         Dim grayAlpha As Integer
+        Dim memory As Bitmap
 
-        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(New Bitmap(width, khzRate, PixelFormat.Format32bppArgb))
+#If NET48 Then
+        memory = New Bitmap(width, khzRate, PixelFormat.Format32bppArgb)
+#Else
+        memory = New Bitmap(width, khzRate)
+#End If
+
+        Using img As BitmapBuffer = BitmapBuffer.FromBitmap(memory)
             For Each columnScan As Single() In scans
                 For i As Integer = 0 To columnScan.Length - 1
                     If luminous Then
