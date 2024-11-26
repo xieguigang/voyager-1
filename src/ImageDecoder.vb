@@ -56,6 +56,16 @@ Imports Bitmap = Microsoft.VisualBasic.Imaging.Bitmap
 
 Module ImageDecoder
 
+    ''' <summary>
+    ''' demodulation of a image from a given analog signal data
+    ''' </summary>
+    ''' <param name="data">a given analog signal data, a wave audio data</param>
+    ''' <param name="args"></param>
+    ''' <param name="aligns"></param>
+    ''' <param name="khzRate"></param>
+    ''' <param name="offsetLeft"></param>
+    ''' <param name="offsetRight"></param>
+    ''' <returns>the pixel intensity data of the result image</returns>
     <Extension>
     Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer),
                                      khzRate As Integer,
@@ -87,6 +97,13 @@ Module ImageDecoder
         Next
     End Function
 
+    ''' <summary>
+    ''' analog signal demodulation of a scan line
+    ''' </summary>
+    ''' <param name="data">analog signal data of a scan line</param>
+    ''' <param name="align"></param>
+    ''' <param name="khzRate">the image width</param>
+    ''' <returns>pixels signal intensity data on a scan line for decode the image</returns>
     <Extension>
     Private Function pixels(data As Single(), align As Integer, khzRate As Integer) As Single()
         Dim index As i32 = Scan0
