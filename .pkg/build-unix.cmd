@@ -1,7 +1,7 @@
 @echo off
 
 SET drive=%~d0
-SET R_HOME=%drive%\GCModeller\src\R-sharp\App\net6.0
+SET R_HOME=%drive%\GCModeller\src\R-sharp\App\net8.0
 SET Rscript="%R_HOME%/Rscript.exe"
 SET REnv="%R_HOME%/R#.exe"
 
