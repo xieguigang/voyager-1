@@ -1,3 +1,4 @@
+#' A pre-defined list of the image locations
 const data_chunks = list(
     "Calibration_circle"        = 6000208,
     "Solar_location_map"        = 8465560,
@@ -5,6 +6,11 @@ const data_chunks = list(
     "Physical_unit_definitions" = 13001000
 );
 
+#' make batch export of the images on the disk
+#' 
+#' @param wavFile the file path to the disk image in wave file
+#' @param output_dir the directory path for export the image files
+#' 
 const export_from_chunks = function(wavFile as string, output_dir as string) {
 	using wav as read.wav(file = file(wavFile), lazy = TRUE) {
 		# view of the raw file data summary;
@@ -26,7 +32,7 @@ const .export_chunk = function(wav, chunk_name) {
     let decoder = new decode(windowSize = 3400, offset = 384);
     
     print("data size of this image chunk:");
-    print(wav :> chunk_size(chunk = chunk));
+    print(wav |> chunk_size(chunk = chunk));
 
     # run decoder and save the
     # result image file
