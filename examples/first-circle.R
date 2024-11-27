@@ -3,7 +3,9 @@ require(voyager1);
 imports "goldenRecord" from "voyager";
 imports "wav" from "signalKit";
 
-const goldenRecord as string = "J:\GoogleDrive\Voyager\384kHzStereo.wav";
+const goldenRecord as string = "../docs/384kHzStereo.wav";
+
+setwd(@dir);
 
 # A demo R# script for image decode from the goden record wave data
 # this very first circle image on the goden record is used for 
@@ -27,7 +29,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 
     # run decoder and save the
     # result image file
-    bitmap(file = `${dirname(!script$dir)}/docs/circle.png`) {
+    bitmap(file = "../docs/circle.png") {
         wav 
         |> decode(
             chunk       = first_circle, 
