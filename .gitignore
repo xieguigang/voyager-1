@@ -355,3 +355,4 @@ MigrationBackup/
 .ionide/
 *.zip
 dist/test/export.png
+docs/384kHzStereo.wav
