@@ -8,4 +8,4 @@ SET REnv="%R_HOME%/R#.exe"
 %Rscript% --build /src ../ /save ../voyager-1.zip --skip-src-build
 %REnv% --install.packages ../voyager-1.zip
 
-pause
+REM pause
