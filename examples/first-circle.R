@@ -1,6 +1,6 @@
 require(voyager1);
 
-imports "goldenRecord" from "voyager";
+imports "goldenRecord" from "voyager-1";
 imports "wav" from "signalKit";
 
 const goldenRecord as string = "../docs/384kHzStereo.wav";
