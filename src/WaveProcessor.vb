@@ -42,16 +42,14 @@
 #End Region
 
 Imports System.Runtime.CompilerServices
+Imports Microsoft.VisualBasic.Math.LinearAlgebra
 
 Module WaveProcessor
 
     <Extension>
     Public Function PreProcessing(data As Single()) As Single()
-        For i = 0 To data.Length - 1
-            data(i) = -data(i)
-        Next
-
-        Dim base As Single = Math.Abs(data.Min)
+        Dim neg As Vector = -New Vector(data)
+        Dim base As Single = Math.Abs(neg.Min)
 
         For i = 0 To data.Length - 1
             data(i) += base
