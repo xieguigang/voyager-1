@@ -46,6 +46,7 @@ Imports System.Drawing.Imaging
 Imports System.Runtime.CompilerServices
 Imports Microsoft.VisualBasic.ComponentModel.Ranges.Model
 Imports Microsoft.VisualBasic.Imaging.BitmapImage
+Imports Microsoft.VisualBasic.Imaging.Drawing2D.Colors
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Linq
 
@@ -84,8 +85,8 @@ Module ImageDecoder
 
             Call Array.ConstrainedCopy(data, index, buffer, Scan0, args.windowSize)
 
-            start = Which.Max(buffer.Take(startOffset))
-            ends = endOffset + Which.Min(buffer.Skip(endOffset))
+            start = which.Max(buffer.Take(startOffset))
+            ends = endOffset + which.Min(buffer.Skip(endOffset))
 
             ' trim buffer
             buffer = buffer.Skip(start).Take(ends - start).ToArray
@@ -110,11 +111,14 @@ Module ImageDecoder
         Dim sum As Single() = New Single(khzRate - 1) {}
 
         For j As Integer = 0 To sum.Length - 1
+            ' sum the chunk data as pixel intensity value
+            ' chunk size is the [align] size
             For i As Integer = 0 To align - 1
                 sum(j) += data(++index)
             Next
         Next
 
+        ' pixel data of a scan line
         Return sum
     End Function
 
@@ -137,10 +141,14 @@ Module ImageDecoder
                                   In scans
                                   Let colMin As Single = col.Min
                                   Into Min(colMin)
+        ' get global range of the scan data 
+        ' for make transform of the signal intensity data
+        ' to gray scale data
         Dim globalRange As New DoubleRange(globalMin, globalMax)
         Dim alphaRange As DoubleRange = New Double() {0, 255}
         Dim grayAlpha As Integer
         Dim memory As Bitmap
+        Dim grays As Color() = Designer.GetColors("grays", alphaRange.Max)
 
 #If NET48 Then
         memory = New Bitmap(width, khzRate, PixelFormat.Format32bppArgb)
@@ -155,9 +163,15 @@ Module ImageDecoder
                         c = Color.FromArgb(CInt(globalRange.ScaleMapping(columnScan(i), New Double() {0, 20000})))
                     Else
                         grayAlpha = globalRange.ScaleMapping(columnScan(i), alphaRange)
-                        grayAlpha = 255 - grayAlpha
+                        grayAlpha = grays.Length - grayAlpha
 
-                        c = Color.FromArgb(grayAlpha, 0, 0, 0)
+                        If grayAlpha < 0 Then
+                            grayAlpha = 0
+                        ElseIf grayAlpha > grays.Length - 1 Then
+                            grayAlpha = grays.Length - 1
+                        End If
+
+                        c = grays(grayAlpha)
                     End If
 
                     If y > img.Height - 1 Then
