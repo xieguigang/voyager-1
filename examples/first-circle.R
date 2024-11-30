@@ -30,14 +30,19 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
     # run decoder and save the
     # result image file
     bitmap(file = "../docs/circle.png") {
-        wav 
+        let decode_data = wav 
         |> decode(
             chunk       = first_circle, 
             decode      = decoder, 
             offsetLeft  = 0.15, 
             offsetRight = 0.1
-        )
-        |> as.bitmap() 
+        );
+
+        # export signal intensity scale data into csv file
+        write_csv(decode_data, file = "../docs/circle.csv");
+        
+        # rendering as bitmap image in gray scale
+        decode_data |> as.bitmap() 
         ;
     }
 }
