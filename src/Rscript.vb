@@ -42,10 +42,12 @@
 #End Region
 
 Imports System.Drawing
+Imports System.IO
 Imports Microsoft.VisualBasic.CommandLine.Reflection
 Imports Microsoft.VisualBasic.Data.Wave
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Scripting.MetaData
+Imports Microsoft.VisualBasic.Text
 Imports SMRUCC.Rsharp.Runtime
 Imports SMRUCC.Rsharp.Runtime.Interop
 
@@ -95,6 +97,27 @@ Module Rscript
             .aligns = aligns.ToArray,
             .size = size
         }
+    End Function
+
+    ''' <summary>
+    ''' write the image decode intensity data as csv file
+    ''' </summary>
+    ''' <param name="decode"></param>
+    ''' <param name="file"></param>
+    ''' <returns></returns>
+    <ExportAPI("write_csv")>
+    Public Function writeExcel(decode As PixelDecode, file As String) As Object
+        Using s As Stream = file.Open(FileMode.OpenOrCreate, doClear:=True)
+            Dim table As New StreamWriter(s, Encodings.ASCII.CodePage)
+
+            For Each r As Single() In decode.pixels.MatrixTranspose
+                Call table.WriteLine(r.JoinBy(","))
+            Next
+
+            Call table.Flush()
+        End Using
+
+        Return True
     End Function
 
     <ExportAPI("as.bitmap")>

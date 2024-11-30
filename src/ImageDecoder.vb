@@ -148,7 +148,7 @@ Module ImageDecoder
         Dim alphaRange As DoubleRange = New Double() {0, 255}
         Dim grayAlpha As Integer
         Dim memory As Bitmap
-        Dim grays As Color() = Designer.GetColors("grays", alphaRange.Max)
+        Dim grays As Color() = Designer.GetColors("gray", alphaRange.Max)
 
 #If NET48 Then
         memory = New Bitmap(width, khzRate, PixelFormat.Format32bppArgb)
