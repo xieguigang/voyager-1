@@ -66,7 +66,7 @@ Module ImageDecoder
     ''' <param name="khzRate"></param>
     ''' <param name="offsetLeft"></param>
     ''' <param name="offsetRight"></param>
-    ''' <returns>the pixel intensity data of the result image</returns>
+    ''' <returns>the matrix of pixel gray scale intensity data of the result image</returns>
     <Extension>
     Public Iterator Function GetScan(data As Single(), args As DecoderArgument, aligns As List(Of Integer),
                                      khzRate As Integer,
