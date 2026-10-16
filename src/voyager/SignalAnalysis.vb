@@ -87,74 +87,88 @@ Public Module SignalAnalysis
             End If
 
             Dim raw As Single()() = source.ReadChannels(startFrame, lengthFrame, chSel)
-            Dim data As Single() = raw(channel)
 
-            Dim report As New DecodeReport With {
-                .source = wavPath,
-                .channel = ChannelName(channel),
-                .start_frame = startFrame,
-                .length_frame = lengthFrame,
-                .sample_rate = source.SampleRate,
-                .duration = lengthFrame / source.SampleRate,
-                .min_value = data.Min,
-                .max_value = data.Max,
-                .dc_offset = data.Mean,
-                .rms = data.Rms,
-                .amplitude_p90 = Dsp.Percentile(DoubleArray(data), 0.9),
-                .amplitude_p99 = Dsp.Percentile(DoubleArray(data), 0.99)
-            }
-
-            ' ------------------------------------------------------------------
-            ' scan line structure
-            ' ------------------------------------------------------------------
-            Dim envelope As Double() = data.Envelope(envWindow)
-            Dim period As New PeriodEstimation
-
-            Call EstimateLinePeriod(envelope, period)
-
-            report.line_period = period.period
-            report.line_period_score = period.score
-            report.samples_per_pixel = period.period / CellSlotsPerPeriod
-            report.pixel_rate = source.SampleRate / report.samples_per_pixel
-
-            ' sync pulse positions and their interval statistics
-            Dim pulses As Double() = DetectSyncPulses(envelope, period.period)
-            Dim intervals As Double() = PulseIntervals(pulses)
-
-            report.sync_pulse_count = pulses.Length
-            report.line_count = pulses.Length
-            report.line_period_std = StdError(intervals)
-            report.line_period_drift = IntervalDrift(pulses)
-            report.pulse_interval_mean = If(intervals.Length > 0, intervals.MeanArray, 0)
-            report.pulse_interval_std = StdError(intervals)
-            report.pulse_interval_modes = IntervalModes(intervals, 8, 3)
-
-            ' ------------------------------------------------------------------
-            ' payload (brightness) modulation analysis
-            ' ------------------------------------------------------------------
-            Dim payload As PayloadAnalysis = AnalysePayload(data, pulses, report.samples_per_pixel)
-
-            report.envelope_peaks_per_pixel = payload.peaks_per_pixel
-            report.spectral_peaks = payload.spectral_peaks
-            report.high_band_ratio = payload.high_band_ratio
-            report.brightness_encoding = payload.encoding
-
-            ' ------------------------------------------------------------------
-            ' stereo channel relationship
-            ' ------------------------------------------------------------------
-            If raw.Length >= 2 Then
-                Call AnalyseChannels(raw(0), raw(1), report)
-            End If
-
-            ' ------------------------------------------------------------------
-            ' color (chroma) component detection
-            ' ------------------------------------------------------------------
-            Call AnalyseChroma(raw, report)
-
-            report.notes = payload.notes
-
-            Return report
+            Return AnalyseFrames(raw, source.SampleRate, wavPath, startFrame, lengthFrame, channel, envWindow)
         End Using
+    End Function
+
+    ''' <summary>
+    ''' run the empirical analysis on the already loaded channel sample data
+    ''' </summary>
+    ''' <param name="raw">the sample data of the stereo channels, ``raw(0)`` is the left channel</param>
+    ''' <param name="sampleRate"></param>
+    ''' <param name="source">the description of the data source, it is only used for the report</param>
+    Public Function AnalyseFrames(raw As Single()(), sampleRate As Integer, Optional source As String = Nothing,
+                                  Optional startFrame As Long = 0, Optional lengthFrame As Long = 0,
+                                  Optional channel As Integer = 0,
+                                  Optional envWindow As Integer = 96) As DecodeReport
+
+        Dim data As Single() = raw(channel)
+        Dim report As New DecodeReport With {
+            .source = source,
+            .channel = ChannelName(channel),
+            .start_frame = startFrame,
+            .length_frame = If(lengthFrame > 0, lengthFrame, data.Length),
+            .sample_rate = sampleRate,
+            .duration = data.Length / sampleRate,
+            .min_value = data.Min,
+            .max_value = data.Max,
+            .dc_offset = data.Mean,
+            .rms = data.Rms,
+            .amplitude_p90 = Dsp.Percentile(DoubleArray(data), 0.9),
+            .amplitude_p99 = Dsp.Percentile(DoubleArray(data), 0.99)
+        }
+
+        ' ------------------------------------------------------------------
+        ' scan line structure
+        ' ------------------------------------------------------------------
+        Dim envelope As Double() = data.Envelope(envWindow)
+        Dim period As New PeriodEstimation
+
+        Call EstimateLinePeriod(envelope, period)
+
+        report.line_period = period.period
+        report.line_period_score = period.score
+        report.samples_per_pixel = period.period / CellSlotsPerPeriod
+        report.pixel_rate = sampleRate / report.samples_per_pixel
+
+        ' sync pulse positions and their interval statistics
+        Dim pulses As Double() = DetectSyncPulses(envelope, period.period)
+        Dim intervals As Double() = PulseIntervals(pulses)
+
+        report.sync_pulse_count = pulses.Length
+        report.line_count = pulses.Length
+        report.line_period_std = StdError(intervals)
+        report.line_period_drift = IntervalDrift(pulses)
+        report.pulse_interval_mean = If(intervals.Length > 0, intervals.MeanArray, 0)
+        report.pulse_interval_std = StdError(intervals)
+        report.pulse_interval_modes = IntervalModes(intervals, 8, 3)
+
+        ' ------------------------------------------------------------------
+        ' payload (brightness) modulation analysis
+        ' ------------------------------------------------------------------
+        Dim payload As PayloadAnalysis = AnalysePayload(data, pulses, report.samples_per_pixel)
+
+        report.envelope_peaks_per_pixel = payload.peaks_per_pixel
+        report.spectral_peaks = payload.spectral_peaks
+        report.high_band_ratio = payload.high_band_ratio
+        report.brightness_encoding = payload.encoding
+
+        ' ------------------------------------------------------------------
+        ' stereo channel relationship
+        ' ------------------------------------------------------------------
+        If raw.Length >= 2 Then
+            Call AnalyseChannels(raw(0), raw(1), report)
+        End If
+
+        ' ------------------------------------------------------------------
+        ' color (chroma) component detection
+        ' ------------------------------------------------------------------
+        Call AnalyseChroma(raw, report)
+
+        report.notes = payload.notes
+
+        Return report
     End Function
 
     ''' <summary>

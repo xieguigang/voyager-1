@@ -62,7 +62,12 @@ Public Class SectionResult
     Public Property line_count As Integer
     Public Property pixel_count As Integer
     Public Property jitter_std As Double
-    Public Property error As String
+
+    ''' <summary>
+    ''' the error message of the failed section
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property message As String
 
 End Class
 
@@ -199,7 +204,7 @@ Public Module BatchExporter
                     result.exported += 1
                 Catch ex As Exception
                     item.success = False
-                    item.error = ex.Message
+                    item.message = ex.Message
 
                     result.failed += 1
                 End Try

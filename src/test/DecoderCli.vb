@@ -102,7 +102,7 @@ Friend Module DecoderCli
             If item.success Then
                 Call Console.WriteLine($"  {item.name,-32} {"ok",7} {item.line_count,9} {item.pixel_count,8} {item.line_period,9:F3} {item.pixel_pitch,8:F4} {item.jitter_std,8:F3}")
             Else
-                Call Console.WriteLine($"  {item.name,-32} {"failed",7}  {item.error}")
+                Call Console.WriteLine($"  {item.name,-32} {"failed",7}  {item.message}")
             End If
         Next
 
