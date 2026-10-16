@@ -1,18 +1,30 @@
 ﻿.TH EXPORT_FROM_CHUNKS 1 2024-Nov "" "make batch export of the images on the disk"
 .SH NAME
-export_from_chunks \- export_from_chunks(wavFile, output.dir)
+export_from_chunks \- export_from_chunks(wavFile, output.dir, size = 364, lines = 512, smooth = 2, report = FALSE)
 .SH SYNOPSIS
-\fIexport_from_chunks(wavFile, output.dir)\fR
+\fIexport_from_chunks(wavFile, output.dir, size = 364, lines = 512, smooth = 2, report = FALSE)\fR
 .SH OPTIONS
 .PP
 \fBwavFile\fB \fR\- . the file path to the disk image in wave file
 .PP
 .PP
-\fBoutput.dir\fB \fR\- . 
+\fBoutput.dir\fB \fR\- . the directory path for export the image files
+.PP
+.PP
+\fBsize\fB \fR\- 364. the pixel cells (the image rows) inside a single scan line
+.PP
+.PP
+\fBlines\fB \fR\- 512. the number of the scan lines (the image columns)
+.PP
+.PP
+\fBsmooth\fB \fR\- 2. the radius of the across scan line smoothing
+.PP
+.PP
+\fBreport\fB \fR\- FALSE. print the empirical analysis report of every image section
 .PP
 .SH FILES
 .PP
-SMRUCC/R#.declare_function.export_from_chunks at chunks.R:line 14
+SMRUCC/R#.declare_function.export_from_chunks at chunks.R:line 24
 .PP
 .SH COPYRIGHT
 Copyright © xieguigang, MIT Licensed 2024

@@ -1,10 +1,53 @@
 .\" man page create by R# package system.
 .TH GOLDENRECORD 1 2000-Jan "as.bitmap" "as.bitmap"
 .SH NAME
-as.bitmap \- 
+as.bitmap \- render the decoded pixels as a bitmap image
 .SH SYNOPSIS
-\fIas.bitmap(\fBpixels\fR as <generic> PixelDecode, 
-\fBluminous\fR as boolean = FALSE);\fR
+\fIas.bitmap(\fBpixels\fR as <generic> PixelDecode,
+\fBluminous\fR as boolean = FALSE,
+\fBwhite\fR as double = 1,
+\fBgamma\fR as double = 1,
+\fBinvert\fR as boolean = TRUE,
+\fBpercentile\fR as double[] = NULL,
+\fBpalette\fR as string = "gray",
+\fBsmooth\fR as integer = 0,
+\fBheight\fR as integer = 0);\fR
+.SH DESCRIPTION
+.PP
+render the decoded pixels as a gray scale or a pseudo color bitmap image.
+.PP
+the intensity data is normalized by the percentile based auto levels, and the
+polarity is inverted by default because the image data of the golden record is
+stored as a photographic negative.
+.PP
+.SH OPTIONS
+.PP
+\fBpixels\fB \fR\- the decoded image pixels.
+.PP
+.PP
+\fBluminous\fB \fR\- FALSE. render as a pseudo color image.
+.PP
+.PP
+\fBwhite\fB \fR\- 1. the white point gain, 0 or 1 means no adjustment.
+.PP
+.PP
+\fBgamma\fB \fR\- 1. the gamma correction, 1 means no correction.
+.PP
+.PP
+\fBinvert\fB \fR\- TRUE. the black/white polarity.
+.PP
+.PP
+\fBpercentile\fB \fR\- NULL. the black point and the white point percentiles, like \fBc(0.005, 0.995)\fR.
+.PP
+.PP
+\fBpalette\fB \fR\- "gray". the palette name of the pseudo color rendering.
+.PP
+.PP
+\fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing, 0 for disable.
+.PP
+.PP
+\fBheight\fB \fR\- 0. the output image height in pixels, 0 for keep the original size.
+.PP
 .SH SEE ALSO
 goldenRecord
 .SH FILES

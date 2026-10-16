@@ -1,0 +1,34 @@
+.\" man page create by R# package system.
+.TH GOLDENRECORD 1 2000-Jan "decode.report" "decode.report"
+.SH NAME
+decode.report \- the empirical analysis of an image data section
+.SH SYNOPSIS
+\fIdecode.report(\fBwav\fR as <generic> WaveFile,
+\fBchunk\fR as <generic> ImageChunk,
+\fBenv_window\fR as integer = 96,
+[\fB<Environment>\fR]);\fR
+.SH DESCRIPTION
+.PP
+the empirical analysis of an image data section: the scan line period, the
+pixel clock, the brightness encoding scheme, the left/right channel
+relationship and the color component detection result.
+.PP
+.SH OPTIONS
+.PP
+\fBwav\fB \fR\- -.
+.PP
+.PP
+\fBchunk\fB \fR\- the image data section on the wave file.
+.PP
+.PP
+\fBenv_window\fB \fR\- 96. the low pass window of the signal envelope.
+.PP
+.PP
+\fBenv\fB \fR\- -.
+.PP
+.SH SEE ALSO
+goldenRecord
+.SH FILES
+.PP
+voyager-1.dll
+.PP

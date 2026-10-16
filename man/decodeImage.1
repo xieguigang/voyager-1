@@ -1,16 +1,26 @@
 ﻿.TH DECODEIMAGE 1 2024-Nov "" "Decode a grayscale image on the disk"
 .SH NAME
 decodeImage \- decodeImage(start, wavFile,
-    <i>offsetLeft</i> = <span style='color: green;'>0.15</span>,
-    <i>offsetRight</i> = <span style='color: green;'>0.1</span>,
-    <i>white</i> = <span style='color: green;'>0.8</span>,
-    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>)
+    <i>size</i> = <span style='color: green;'>364</span>,
+    <i>lines</i> = <span style='color: green;'>512</span>,
+    <i>white</i> = <span style='color: green;'>1</span>,
+    <i>gamma</i> = <span style='color: green;'>1</span>,
+    <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
+    <i>palette</i> = <span style='color: green;'>"gray"</span>,
+    <i>smooth</i> = <span style='color: green;'>2</span>,
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>)
 .SH SYNOPSIS
 \fIdecodeImage(start, wavFile,
-    <i>offsetLeft</i> = <span style='color: green;'>0.15</span>,
-    <i>offsetRight</i> = <span style='color: green;'>0.1</span>,
-    <i>white</i> = <span style='color: green;'>0.8</span>,
-    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>)\fR
+    <i>size</i> = <span style='color: green;'>364</span>,
+    <i>lines</i> = <span style='color: green;'>512</span>,
+    <i>white</i> = <span style='color: green;'>1</span>,
+    <i>gamma</i> = <span style='color: green;'>1</span>,
+    <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
+    <i>palette</i> = <span style='color: green;'>"gray"</span>,
+    <i>smooth</i> = <span style='color: green;'>2</span>,
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>)\fR
 .SH OPTIONS
 .PP
 \fBstart\fB \fR\- . the data start position on the raw wav file
@@ -19,16 +29,31 @@ decodeImage \- decodeImage(start, wavFile,
 \fBwavFile\fB \fR\- . the file path of the wav file
 .PP
 .PP
-\fBoffsetLeft\fB \fR\- 0.15. percentage of the margin on the left for each scan line
+\fBsize\fB \fR\- 364. the pixel cells (the image rows) inside a single scan line
 .PP
 .PP
-\fBoffsetRight\fB \fR\- 0.1. percentage of the margin on the right for each scan line
+\fBlines\fB \fR\- 512. the number of the scan lines (the image columns)
 .PP
 .PP
-\fBwhite\fB \fR\- 0.8. 
+\fBwhite\fB \fR\- 1. the white point gain of the rendering, 1 means no adjustment
 .PP
 .PP
-\fBluminous\fB \fR\- FALSE. 
+\fBgamma\fB \fR\- 1. the gamma correction of the rendering, 1 means no correction
+.PP
+.PP
+\fBpercentile\fB \fR\- NULL. the black point and the white point percentiles of the auto levels
+.PP
+.PP
+\fBpalette\fB \fR\- "gray". the palette name of the pseudo color rendering
+.PP
+.PP
+\fBsmooth\fB \fR\- 2. the radius of the across scan line smoothing, 0 for disable
+.PP
+.PP
+\fBluminous\fB \fR\- FALSE. render the image as the pseudo color image
+.PP
+.PP
+\fBreport\fB \fR\- FALSE. print the empirical analysis report of the data section
 .PP
 .SH VALUE
 .PP
@@ -36,7 +61,7 @@ a bitmap image object
 .PP
 .SH FILES
 .PP
-SMRUCC/R#.declare_function.decodeImage at decoder.R:line 13
+SMRUCC/R#.declare_function.decodeImage at decoder.R:line 23
 .PP
 .SH COPYRIGHT
 Copyright © xieguigang, MIT Licensed 2024
