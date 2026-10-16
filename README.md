@@ -74,11 +74,42 @@ suppressing the per scan line gain noise of the analog recording.
 | -------------------------------- | ------------------------------------- |
 | ![](docs/decoded/circle.png) | ![](docs/circle.png) |
 
-the geometrical shapes are kept: the ring of the calibration circle is a true
-circle (the measured ring extents ratio is ``dy/dx = 0.99``), and the text of the
-mathematical definitions image is readable:
+the geometrical shapes are kept: the measured ring extents ratio of the
+calibration circle is ``dy/dx = 0.98`` (the ink line of the ring is only about
+3 pixels wide, so the measurement itself has a few percent of uncertainty), and
+the text of the mathematical definitions image is readable:
 
 ![](docs/decoded/03-Mathematical_definitions.png)
+
+## verification
+
+the pixel clock calibration is checked by the roundness of the calibration circle
+(the ``--ring`` mode), the measured parameters of the four image sections on the
+disk are almost identical, this is a strong evidence that the measured scan line
+period and pixel clock are the true ones:
+
+| image section | start frame | line period | samples/pixel | jitter std |
+| ------------- | ----------- | ----------- | ------------- | ---------- |
+| Calibration circle | 6000208 | 3197.344 | 7.5002 | 12.1 |
+| Solar location map | 8465560 | 3196.716 | 7.4987 | 24.5 |
+| Mathematical definitions | 10686671 | 3197.594 | 7.5008 | 29.9 |
+| Physical unit definitions | 13001000 | 3197.620 | 7.5009 | 23.6 |
+
+the raster orientation and the ink polarity are checked against the official
+reference images by the ``--compare`` mode (the residual correlation is polarity
+sensitive, the low frequency correlation is only the background tonality):
+
+```bash
+$ test --compare --image docs/decoded/circle.png --reference docs/circle.png
+candidate 512 x 364 vs reference 529 x 364: direct=-0.5666, transposed=-0.0138, ink=0.0114 => direct
+the orientation : direct (the absolute value of the correlation is used)
+the ink polarity: inconclusive (the residual correlation 0.0114 is too weak, ...)
+```
+
+the ``ink`` correlation of the legacy decoder output changes from ``-0.05`` to
+``+0.01`` after the black/white polarity fix, the ink polarity is confirmed by
+the readable text of the mathematical definitions image (the ink is dark and the
+paper is light, just like the official images).
 
 # demo and library usage
 
@@ -88,8 +119,8 @@ the ``src/test`` project also provides a command line tool for the decoding,
 diagnosis and the batch export:
 
 ```bash
-# print the empirical analysis of the image data section
-dotnet src/test/bin/Debug/net10.0/test.dll --diagnose
+# print the empirical analysis of the image data section, and save it as json
+dotnet src/test/bin/Debug/net10.0/test.dll --diagnose --json docs/decoded/diagnose.json
 
 # decode one image data section, the output image is 512 x 364
 dotnet src/test/bin/Debug/net10.0/test.dll --decode --out docs/decoded/circle.png
@@ -109,6 +140,10 @@ dotnet src/test/bin/Debug/net10.0/test.dll --compare --image docs/decoded/circle
 # dump the raw waveform structure and the intermediate images
 dotnet src/test/bin/Debug/net10.0/test.dll --probe --out docs/decoded/probe
 ```
+
+the reference image of the ``--compare`` mode can be a png file or any other image
+format which is supported by the System.Drawing library (the legacy image files of
+this repository are bmp files with a ``.png`` file name).
 
 run the tool without arguments for the full usage of the options.
 

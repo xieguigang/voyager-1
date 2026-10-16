@@ -33,14 +33,22 @@ Public Class OrientationTest
     Public Property transposed As Double
 
     ''' <summary>
-    ''' the correlation of the inverted polarity direct orientation
+    ''' the correlation of the high pass residuals of the two images in the best
+    ''' orientation.
+    ''' 
+    ''' the low frequency correlation is dominated by the background luminance and the
+    ''' framing offset, so it can not tell the ink polarity. this value only keeps the
+    ''' fine details (the ink) of the image and it is polarity sensitive: a negative
+    ''' value means the black/white polarity of the two images is inverted.
     ''' </summary>
     ''' <returns></returns>
-    Public Property direct_inverted As Double
+    Public Property ink As Double
 
     Public ReadOnly Property best As String
         Get
-            If direct >= transposed Then
+            ' the comparison must use the absolute value: the sign of the correlation is
+            ' the polarity information and not the orientation information
+            If Math.Abs(direct) >= Math.Abs(transposed) Then
                 Return "direct"
             Else
                 Return "transposed"
@@ -49,7 +57,7 @@ Public Class OrientationTest
     End Property
 
     Public Overrides Function ToString() As String
-        Return $"candidate {candidate_size} vs reference {reference_size}: direct={direct.ToString("F4")}, transposed={transposed.ToString("F4")}, direct(inverted)={direct_inverted.ToString("F4")} => {best}"
+        Return $"candidate {candidate_size} vs reference {reference_size}: direct={direct.ToString("F4")}, transposed={transposed.ToString("F4")}, ink={ink.ToString("F4")} => {best}"
     End Function
 End Class
 
@@ -120,6 +128,42 @@ Public Module ImageCompare
     End Function
 
     ''' <summary>
+    ''' the high pass residual of an image matrix: the value minus its local mean,
+    ''' this filter keeps the ink and the fine details of the image only
+    ''' </summary>
+    Public Function HighPass(image As Double()(), radius As Integer) As Double()()
+        Dim rows As Integer = image.Length
+        Dim cols As Integer = image(0).Length
+        Dim result As Double()() = New Double(rows - 1)() {}
+
+        For y As Integer = 0 To rows - 1
+            Dim row As Double() = New Double(cols - 1) {}
+            Dim y0 As Integer = Math.Max(0, y - radius)
+            Dim y1 As Integer = Math.Min(rows - 1, y + radius)
+
+            For x As Integer = 0 To cols - 1
+                Dim x0 As Integer = Math.Max(0, x - radius)
+                Dim x1 As Integer = Math.Min(cols - 1, x + radius)
+                Dim sum As Double = 0
+                Dim n As Integer = 0
+
+                For yy As Integer = y0 To y1
+                    For xx As Integer = x0 To x1
+                        sum += image(yy)(xx)
+                        n += 1
+                    Next
+                Next
+
+                row(x) = image(y)(x) - sum / n
+            Next
+
+            result(y) = row
+        Next
+
+        Return result
+    End Function
+
+    ''' <summary>
     ''' the pearson correlation coefficient of two matrix with the same shape
     ''' </summary>
     Public Function Correlation(a As Double()(), b As Double()()) As Double
@@ -175,21 +219,16 @@ Public Module ImageCompare
         Dim resizedReference As Double()() = Resize(reference, cols, rows)
         Dim transposed As Double()() = Resize(Transpose(candidate), reference(0).Length, reference.Length)
         Dim referenceDirect As Double()() = Resize(reference, reference(0).Length, reference.Length)
-        Dim inverted As Double()() = New Double(rows - 1)() {}
-
-        For y As Integer = 0 To rows - 1
-            Dim row As Double() = New Double(cols - 1) {}
-
-            For x As Integer = 0 To cols - 1
-                row(x) = -direct(y)(x)
-            Next
-
-            inverted(y) = row
-        Next
 
         test.direct = Correlation(direct, resizedReference)
         test.transposed = Correlation(transposed, referenceDirect)
-        test.direct_inverted = Correlation(inverted, resizedReference)
+
+        ' the polarity of the ink is checked on the high pass residual of the image
+        If test.best = "direct" Then
+            test.ink = Correlation(HighPass(direct, 2), HighPass(resizedReference, 2))
+        Else
+            test.ink = Correlation(HighPass(transposed, 2), HighPass(referenceDirect, 2))
+        End If
 
         Return test
     End Function

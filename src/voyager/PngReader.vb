@@ -21,7 +21,7 @@ Imports System.IO.Compression
 ''' </summary>
 Public Class PngImage
 
-    Public Property Width As Integer
+Public Property Width As Integer
     Public Property Height As Integer
 
     ''' <summary>

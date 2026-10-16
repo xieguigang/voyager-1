@@ -229,9 +229,52 @@ Friend Module DecoderCli
     ''' <summary>
     ''' the objective comparison between the decoded image and the official reference image
     ''' </summary>
+    ''' <summary>
+    ''' load an image file for the comparison.
+    ''' 
+    ''' the png file is loaded by the managed png reader, the other formats (the
+    ''' original decoder demo script wrote the bitmap as a bmp file under a ``.png``
+    ''' file name) are loaded by the System.Drawing library.
+    ''' </summary>
+    Private Function LoadImage(path As String) As PngImage
+        Try
+            Return PngReader.Load(path)
+        Catch ex As Exception
+            Call Console.WriteLine($"[warn] {ex.Message}")
+
+            Using bitmap As New System.Drawing.Bitmap(path)
+                Dim width As Integer = bitmap.Width
+                Dim height As Integer = bitmap.Height
+                Dim pixels As Byte() = New Byte(width * height * 3 - 1) {}
+                Dim p As Integer = 0
+
+                For y As Integer = 0 To height - 1
+                    For x As Integer = 0 To width - 1
+                        Dim color As System.Drawing.Color = bitmap.GetPixel(x, y)
+
+                        pixels(p) = color.R
+                        pixels(p + 1) = color.G
+                        pixels(p + 2) = color.B
+                        p += 3
+                    Next
+                Next
+
+                Return New PngImage With {
+                    .Width = width,
+                    .Height = height,
+                    .Channels = 3,
+                    .Pixels = pixels,
+                    .BitDepth = 8,
+                    .ColorType = 2,
+                    .RawBytes = pixels.Length
+                }
+            End Using
+        End Try
+    End Function
+
     Private Function RunCompare(options As CliOptions) As Integer
-        Dim ours As PngImage = PngReader.Load(options.image)
-        Dim reference As PngImage = PngReader.Load(options.reference)
+        Dim ours As PngImage = LoadImage(options.image)
+        Dim reference As PngImage = LoadImage(options.reference)
 
         Call Console.WriteLine($"decoded  : {options.image} ({ours.Width} x {ours.Height})")
         Call Console.WriteLine($"reference: {options.reference} ({reference.Width} x {reference.Height})")
@@ -243,6 +286,18 @@ Friend Module DecoderCli
         Dim test As OrientationTest = ImageCompare.OrientationTest(oursGray, referenceGray)
 
         Call Console.WriteLine(test.ToString)
+        Call Console.WriteLine($"the orientation : {test.best} (the absolute value of the correlation is used)")
+        Call Console.WriteLine("                  the low frequency correlation is dominated by the background tonality")
+        Call Console.WriteLine("                  and the framing offset, the sign alone can not tell the ink polarity")
+
+        If Math.Abs(test.ink) < 0.05 Then
+            Call Console.WriteLine($"the ink polarity: inconclusive (the residual correlation {test.ink.ToString("F4")} is too weak, the fine details of the two images are not aligned)")
+        ElseIf test.ink < 0 Then
+            Call Console.WriteLine($"the ink polarity: INVERTED (the residual correlation is {test.ink.ToString("F4")})")
+        Else
+            Call Console.WriteLine($"the ink polarity: same (the residual correlation is {test.ink.ToString("F4")})")
+        End If
+
         Call Console.WriteLine()
         Call PrintFeatureBox("decoded  ", oursGray)
         Call PrintFeatureBox("reference", referenceGray)
@@ -772,6 +827,8 @@ Friend Module DecoderCli
         Call text.AppendLine("  test [--diagnose] [--wav <path>] [--start <frame>] [--length <frame>]")
         Call text.AppendLine("       [--channel <left|right>] [--env-window <n>] [--json <path>]")
         Call text.AppendLine()
+        Call text.AppendLine("  test --diagnose [--start <frame>] [--length <frame>] [--channel <left|right>] [--json <path>]")
+        Call text.AppendLine()
         Call text.AppendLine("  test --decode [--start <frame>] [--length <frame>] [--channel <left|right>]")
         Call text.AppendLine("       [--out <png path>] [--gamma <value>] [--percentile <low,high>]")
         Call text.AppendLine("       [--white <value>] [--invert] [--palette <name>] [--csv <path>]")
@@ -938,7 +995,7 @@ Friend Class CliOptions
                 Case "--out", "-o"
                     opts.out = value
                     i += 1
-                Case "--json"
+                Case "--json", "--report"
                     opts.report = value
                     i += 1
                 Case "--csv"
