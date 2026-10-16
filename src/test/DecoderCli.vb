@@ -42,8 +42,7 @@ Friend Module DecoderCli
             ElseIf options.ring Then
                 Return RunRing(options)
             ElseIf options.batch Then
-                Call Console.Error.WriteLine("[error] the --batch mode is not available yet!")
-                Return 9
+                Return RunBatch(options)
             Else
                 Return RunDecode(options)
             End If
@@ -52,6 +51,66 @@ Friend Module DecoderCli
             Call Console.Error.WriteLine(ex.StackTrace)
             Return 3
         End Try
+    End Function
+
+    ''' <summary>
+    ''' decode and export all of the image data sections on the whole wave file
+    ''' </summary>
+    Private Function RunBatch(options As CliOptions) As Integer
+        Dim sections As ImageSection()
+
+        If Not String.IsNullOrEmpty(options.chunks) Then
+            sections = BatchExporter.LoadSections(options.chunks)
+            Call Console.WriteLine($"loaded {sections.Length} image sections from {options.chunks}")
+        Else
+            sections = BatchExporter.DefaultSections()
+        End If
+
+        If options.firstImage > 0 OrElse options.imageCount >= 0 Then
+            Dim from As Integer = Math.Max(0, options.firstImage)
+            Dim count As Integer = If(options.imageCount >= 0, options.imageCount, sections.Length - from)
+
+            sections = sections.Skip(from).Take(count).ToArray
+        End If
+
+        If sections.Length = 0 Then
+            Call Console.Error.WriteLine("[error] no image section is selected for the batch export!")
+            Return 2
+        End If
+
+        Call Console.WriteLine($"batch decoding {sections.Length} image sections from {options.wav} ...")
+        Call Console.WriteLine($"the image files will be exported to {options.out}")
+        Call Console.WriteLine()
+
+        Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew
+        Dim result As BatchResult = BatchExporter.Run(
+            wavPath:=options.wav,
+            outputDir:=options.out,
+            sections:=sections,
+            args:=options.DecoderArguments,
+            render:=options.RenderArguments,
+            channel:=options.channel
+        )
+        Dim manifest As String = Path.Combine(options.out, "manifest.json")
+
+        Call BatchExporter.SaveManifest(manifest, result)
+
+        Call Console.WriteLine("  name                              success     lines   pixels    period    pitch   jitter")
+        Call Console.WriteLine("  -------------------------------------------------------------------------------------")
+
+        For Each item As SectionResult In result.sections
+            If item.success Then
+                Call Console.WriteLine($"  {item.name,-32} {"ok",7} {item.line_count,9} {item.pixel_count,8} {item.line_period,9:F3} {item.pixel_pitch,8:F4} {item.jitter_std,8:F3}")
+            Else
+                Call Console.WriteLine($"  {item.name,-32} {"failed",7}  {item.error}")
+            End If
+        Next
+
+        Call Console.WriteLine()
+        Call Console.WriteLine($"{result} in {sw.Elapsed.TotalSeconds.ToString("F2")} seconds.")
+        Call Console.WriteLine($"the batch manifest was saved to {manifest}")
+
+        Return If(result.failed = 0, 0, 1)
     End Function
 
     ''' <summary>
@@ -778,6 +837,7 @@ Friend Class CliOptions
     Public Property pitch As Double
     Public Property skipCells As Integer
     Public Property alignWindow As Integer = 48
+    Public Property chunks As String
 
     Public ReadOnly Property channelName As String
         Get
@@ -857,6 +917,9 @@ Friend Class CliOptions
                     ' the single image decoding mode
                 Case "--batch"
                     opts.batch = True
+                Case "--chunks"
+                    opts.chunks = value
+                    i += 1
                 Case "--wav", "-w"
                     opts.wav = value
                     i += 1
