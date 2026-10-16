@@ -49,8 +49,9 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
         # rendering as bitmap image in gray scale
         # 
         # the image data of the golden record is stored as a photographic negative,
-        # so the black/white polarity is inverted by default
-        decode_data |> as.bitmap(smooth = 2) 
+        # so the black/white polarity is inverted by default; the across scan line
+        # smoothing is disabled by default for keeping the image sharp
+        decode_data |> as.bitmap() 
         ;
     }
 }

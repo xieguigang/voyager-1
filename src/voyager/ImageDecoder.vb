@@ -100,6 +100,7 @@ Public Module ImageDecoder
             .pixel_pitch = args.pixel_pitch,
             .guard = args.guard,
             .remove_baseline = args.remove_baseline,
+            .mode = If(args.use_rms, DemodulationMode.Rms, args.mode),
             .use_rms = args.use_rms,
             .baseline_window = args.baseline_window
         }
@@ -169,7 +170,7 @@ Public Module ImageDecoder
         Dim index As Single() = New Single(khzRate - 1) {}
 
         For j As Integer = 0 To khzRate - 1
-            index(j) = LineDemodulator.PixelValue(data, j * align, align, 0, useRms:=True)
+            index(j) = LineDemodulator.PixelValue(data, j * align, align, 0, DemodulationMode.Mean)
         Next
 
         Return index

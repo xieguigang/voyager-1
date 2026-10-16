@@ -367,7 +367,7 @@ Friend Module DecoderCli
                 .pixel_pitch = pitch,
                 .guard = options.guard,
                 .remove_baseline = True,
-                .use_rms = True
+                .mode = options.mode
             }
             Dim image As Single()() = LineDemodulator.Demodulate(data, grid, opts)
             Dim cells As Integer = image.Length
@@ -746,7 +746,7 @@ Friend Module DecoderCli
                 .pixel_pitch = If(options.pitch > 0, options.pitch, LineDemodulator.PixelPitch(grid.period)),
                 .guard = options.guard,
                 .remove_baseline = True,
-                .use_rms = True
+                .mode = options.mode
             }
             Dim decoded As Single()() = LineDemodulator.Demodulate(data, grid, opts)
             Dim decodedOptions As RenderOptions = RenderOptions.CreateDefault
@@ -850,6 +850,12 @@ Friend Module DecoderCli
         Call text.AppendLine($"  --guard <samples>  the samples which are skipped after the sync pulse position")
         Call text.AppendLine($"  --no-align         disable the per scan line synchronization")
         Call text.AppendLine($"  --align-window <n> the maximal per scan line alignment shift (default 48 samples)")
+        Call text.AppendLine($"  --mode <name>      the pixel cell intensity estimator: mean (default, the signed")
+        Call text.AppendLine($"                     mean of the cell samples), abs (the rectified mean) or rms")
+        Call text.AppendLine($"  --no-rms           the legacy alias of the abs mode")
+        Call text.AppendLine($"  --no-baseline      keep the per scan line baseline drift (it appears as the streaks)")
+        Call text.AppendLine($"  --smooth <n>       the radius of the across scan line smoothing (default 0, disabled)")
+        Call text.AppendLine($"  --positive         disable the black/white polarity inversion (the ink is bright)")
 
         Call Console.WriteLine(text.ToString)
     End Sub
@@ -879,7 +885,18 @@ Friend Class CliOptions
     Public Property gamma As Double = 1.0
     Public Property white As Double = 1.0
     Public Property invert As Boolean = True
-    Public Property smooth As Integer = 2
+
+    ''' <summary>
+    ''' the radius of the across scan line smoothing, zero for disable.
+    ''' 
+    ''' the smoothing is disabled by default: the signed mean demodulation of the
+    ''' analog signal is already clean, while a 3 or 5 scan line average reduces the
+    ''' edge contrast of the decoded image by more than a half (the maximal intensity
+    ''' gradient of the calibration circle drops from about 190 to about 50), so the
+    ''' smoothed image looks blurred comparing with the legacy decoder result.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property smooth As Integer = 0
     Public Property palette As String = "gray"
     Public Property percentileLow As Double = 0.005
     Public Property percentileHigh As Double = 0.995
@@ -890,6 +907,8 @@ Friend Class CliOptions
     Public Property guard As Double = 0
     Public Property noAlign As Boolean
     Public Property noRms As Boolean
+    Public Property noBaseline As Boolean
+    Public Property mode As DemodulationMode = DemodulationMode.Mean
     Public Property ring As Boolean
     Public Property pitch As Double
     Public Property skipCells As Integer
@@ -912,8 +931,9 @@ Friend Class CliOptions
                 .period = period,
                 .pixels = pixels,
                 .guard = guard,
-                .remove_baseline = True,
-                .use_rms = Not noRms,
+                .remove_baseline = Not noBaseline,
+                .mode = mode,
+                .use_rms = mode = DemodulationMode.Rms,
                 .align = Not noAlign,
                 .align_window = 48
             }
@@ -1045,7 +1065,15 @@ Friend Class CliOptions
                 Case "--no-align"
                     opts.noAlign = True
                 Case "--no-rms"
-                    opts.noRms = True
+                    ' the legacy alias of the ``Absolute`` mode
+                    opts.mode = DemodulationMode.Absolute
+                Case "--rms"
+                    opts.mode = DemodulationMode.Rms
+                Case "--mode"
+                    opts.mode = ParseMode(value)
+                    i += 1
+                Case "--no-baseline"
+                    opts.noBaseline = True
                 Case "--align-window"
                     opts.alignWindow = Integer.Parse(value)
                     i += 1
@@ -1084,6 +1112,10 @@ Friend Class CliOptions
         End If
 
         Return opts
+    End Function
+
+    Private Shared Function ParseMode(value As String) As DemodulationMode
+        Return LineDemodulator.ParseMode(value)
     End Function
 
     Private Shared Function ParseChannel(value As String) As Integer

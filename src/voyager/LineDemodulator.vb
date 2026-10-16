@@ -22,6 +22,34 @@
 Imports Microsoft.VisualBasic.Linq
 
 ''' <summary>
+''' the per pixel cell intensity estimator of the analog signal
+''' </summary>
+Public Enum DemodulationMode
+
+    ''' <summary>
+    ''' the signed mean of the cell samples.
+    ''' 
+    ''' this is the estimator which is used by the legacy decoder and it gives the
+    ''' cleanest result: the image brightness is the local level of the analog signal,
+    ''' and the plain mean is a linear low pass filter of the sample data.
+    ''' </summary>
+    Mean = 0
+
+    ''' <summary>
+    ''' the mean of the absolute value of the cell samples (the full wave rectified
+    ''' amplitude). the rectification is a non linear operation: the noise of the
+    ''' analog signal is folded into a positive offset and it is amplified, so the
+    ''' decoded image is noisier than the ``Mean`` mode.
+    ''' </summary>
+    Absolute
+
+    ''' <summary>
+    ''' the root mean square of the cell samples
+    ''' </summary>
+    Rms
+End Enum
+
+''' <summary>
 ''' the demodulation parameters of the golden record image data
 ''' </summary>
 Public Class DemodulateOptions
@@ -52,10 +80,17 @@ Public Class DemodulateOptions
     Public Property remove_baseline As Boolean = True
 
     ''' <summary>
-    ''' use the rms value instead of the mean of the absolute value of the signal
+    ''' the intensity estimator of a pixel cell, the default ``Mean`` mode is the
+    ''' signed mean which matches the legacy decoder result
     ''' </summary>
     ''' <returns></returns>
-    Public Property use_rms As Boolean = True
+    Public Property mode As DemodulationMode = DemodulationMode.Mean
+
+    ''' <summary>
+    ''' use the rms value instead of the signed mean of the cell samples
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property use_rms As Boolean = False
 
     ''' <summary>
     ''' the length (in samples) of the baseline tracking window, zero for the
@@ -83,6 +118,19 @@ Public Module LineDemodulator
     ''' </summary>
     Public Function PixelPitch(period As Double) As Double
         Return period / SignalAnalysis.CellSlotsPerPeriod
+    End Function
+
+    ''' <summary>
+    ''' parse the name of the intensity estimator: ``mean``/``signed``, ``abs`` and ``rms``
+    ''' </summary>
+    Public Function ParseMode(name As String) As DemodulationMode
+        Select Case If(name, "").Trim.ToLower
+            Case "mean", "signed", "" : Return DemodulationMode.Mean
+            Case "abs", "absolute", "rectified" : Return DemodulationMode.Absolute
+            Case "rms" : Return DemodulationMode.Rms
+            Case Else
+                Throw New ArgumentException($"invalid demodulation mode name '{name}', it should be mean, abs or rms!")
+        End Select
     End Function
 
     ''' <summary>
@@ -118,7 +166,7 @@ Public Module LineDemodulator
             End If
 
             For r As Integer = 0 To rows - 1
-                image(r)(c) = PixelValue(data, origin + r * pitch, pitch, baseline, options.use_rms)
+                image(r)(c) = PixelValue(data, origin + r * pitch, pitch, baseline, options.mode)
             Next
         Next
 
@@ -127,10 +175,15 @@ Public Module LineDemodulator
 
     ''' <summary>
     ''' the area weighted pixel intensity of a pixel cell which is started at the
-    ''' given fractional sample position
+    ''' given fractional sample position.
+    ''' 
+    ''' the samples of the cell are combined by the given estimator, the ``Mean`` mode
+    ''' (the signed mean) is a linear low pass filter of the analog signal and it is
+    ''' the estimator which gives the cleanest image, the ``Absolute``/``Rms`` modes
+    ''' rectifies the signal before the combination and they are much noisier.
     ''' </summary>
     Public Function PixelValue(data As Single(), start As Double, pitch As Double,
-                               baseline As Double, useRms As Boolean) As Single
+                               baseline As Double, mode As DemodulationMode) As Single
 
         Dim [end] As Double = start + pitch
         Dim i0 As Integer = CInt(Math.Floor(start))
@@ -143,34 +196,15 @@ Public Module LineDemodulator
         Dim leftWeight As Double = 1 - frac0
 
         If leftWeight > 0 Then
-            Dim v As Double = Sample(data, i0) - baseline
-
-            sum += Math.Abs(v) * leftWeight
-            weight += leftWeight
+            Call Accumulate(sum, weight, Sample(data, i0) - baseline, leftWeight, mode)
         End If
 
         For i As Integer = i0 + 1 To i1 - 1
-            Dim v As Double = Sample(data, i) - baseline
-
-            If useRms Then
-                sum += v * v
-            Else
-                sum += Math.Abs(v)
-            End If
-
-            weight += 1
+            Call Accumulate(sum, weight, Sample(data, i) - baseline, 1, mode)
         Next
 
         If frac1 > 0 Then
-            Dim v As Double = Sample(data, i1) - baseline
-
-            If useRms Then
-                sum += v * v * frac1
-            Else
-                sum += Math.Abs(v) * frac1
-            End If
-
-            weight += frac1
+            Call Accumulate(sum, weight, Sample(data, i1) - baseline, frac1, mode)
         End If
 
         If weight <= 0 Then
@@ -179,8 +213,22 @@ Public Module LineDemodulator
 
         Dim value As Double = sum / weight
 
-        Return If(useRms, Math.Sqrt(value), value)
+        Return If(mode = DemodulationMode.Rms, Math.Sqrt(value), value)
     End Function
+
+    Private Sub Accumulate(ByRef sum As Double, ByRef weight As Double, v As Double,
+                           w As Double, mode As DemodulationMode)
+        Select Case mode
+            Case DemodulationMode.Mean
+                sum += v * w
+            Case DemodulationMode.Absolute
+                sum += Math.Abs(v) * w
+            Case Else
+                sum += v * v * w
+        End Select
+
+        weight += w
+    End Sub
 
     Public Function Sample(data As Single(), i As Integer) As Double
         If i < 0 OrElse i >= data.Length Then

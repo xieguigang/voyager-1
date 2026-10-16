@@ -28,7 +28,7 @@ const image_scan_lines = 512;
 const export_from_chunks = function(wavFile as string, output_dir as string,
                                     size = image_pixel_size,
                                     lines = image_scan_lines,
-                                    smooth = 2,
+                                    smooth = 0,
                                     report = FALSE) {
 	using wav as read.wav(file = file(wavFile), lazy = TRUE) {
 		# view of the raw file data summary;
@@ -46,7 +46,7 @@ const export_from_chunks = function(wavFile as string, output_dir as string,
 const .export_chunk = function(wav, chunk_name,
                                size = image_pixel_size,
                                lines = image_scan_lines,
-                               smooth = 2,
+                               smooth = 0,
                                report = FALSE) {
     # parameters of the image
     # and wav decoder arguments

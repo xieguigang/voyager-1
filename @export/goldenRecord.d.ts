@@ -77,6 +77,7 @@ declare namespace goldenRecord {
     * @param lines the number of the scan lines (the image columns), 0 for the default 512
     * @param align apply the per scan line synchronization
     * @param guard the samples which are skipped after the sync pulse position
+    * @param mode the pixel cell intensity estimator: "mean" (the signed mean, the default), "abs" (the rectified mean) or "rms"
     * @param env -
     *
     * + default value Is ``0``.
@@ -86,7 +87,8 @@ declare namespace goldenRecord {
     * + default value Is ``0``.
     * + default value Is ``true``.
     * + default value Is ``0``.
+    * + default value Is ``"mean"``.
     * + default value Is ``null``.
    */
-   function decode(wav: object, chunk: object, decode: object, size?: object, offsetLeft?: number, offsetRight?: number, pixels?: object, lines?: object, align?: boolean, guard?: number, env?: object): object;
+   function decode(wav: object, chunk: object, decode: object, size?: object, offsetLeft?: number, offsetRight?: number, pixels?: object, lines?: object, align?: boolean, guard?: number, mode?: string, env?: object): object;
 }

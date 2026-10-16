@@ -23,7 +23,7 @@ goldenRecord
     output_dir = output_dir,
     size       = 364,
     lines      = 512,
-    smooth     = 2,
+    smooth     = 0,
     report     = FALSE
 )
 ;

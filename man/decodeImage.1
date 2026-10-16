@@ -7,7 +7,7 @@ decodeImage \- decodeImage(start, wavFile,
     <i>gamma</i> = <span style='color: green;'>1</span>,
     <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
     <i>palette</i> = <span style='color: green;'>"gray"</span>,
-    <i>smooth</i> = <span style='color: green;'>2</span>,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
     <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
     <i>report</i> = <span style='color: blue !important;'>FALSE</span>)
 .SH SYNOPSIS
@@ -18,7 +18,7 @@ decodeImage \- decodeImage(start, wavFile,
     <i>gamma</i> = <span style='color: green;'>1</span>,
     <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
     <i>palette</i> = <span style='color: green;'>"gray"</span>,
-    <i>smooth</i> = <span style='color: green;'>2</span>,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
     <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
     <i>report</i> = <span style='color: blue !important;'>FALSE</span>)\fR
 .SH OPTIONS
@@ -47,7 +47,7 @@ decodeImage \- decodeImage(start, wavFile,
 \fBpalette\fB \fR\- "gray". the palette name of the pseudo color rendering
 .PP
 .PP
-\fBsmooth\fB \fR\- 2. the radius of the across scan line smoothing, 0 for disable
+\fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing, 0 for disable (the smoothing reduces the edge contrast of the decoded image)
 .PP
 .PP
 \fBluminous\fB \fR\- FALSE. render the image as the pseudo color image

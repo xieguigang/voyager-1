@@ -106,10 +106,19 @@ Public Class DecoderArgument
     Public Property remove_baseline As Boolean = True
 
     ''' <summary>
-    ''' use the rms value instead of the mean of the absolute value of the signal
+    ''' the intensity estimator of a pixel cell, the default ``Mean`` mode is the signed
+    ''' mean of the cell samples (the legacy decoder estimator), the ``Absolute``/``Rms``
+    ''' modes rectifies the samples and they are much noisier
     ''' </summary>
     ''' <returns></returns>
-    Public Property use_rms As Boolean = True
+    Public Property mode As DemodulationMode = DemodulationMode.Mean
+
+    ''' <summary>
+    ''' the legacy switch of the ``Rms`` intensity estimator, it overrides the ``mode``
+    ''' property when it is enabled
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property use_rms As Boolean = False
 
     ''' <summary>
     ''' the length (in samples) of the baseline tracking window, zero for the whole
@@ -144,6 +153,7 @@ Public Class DecoderArgument
             .pixel_pitch = pixel_pitch,
             .guard = guard,
             .remove_baseline = remove_baseline,
+            .mode = mode,
             .use_rms = use_rms,
             .baseline_window = baseline_window,
             .align = align,

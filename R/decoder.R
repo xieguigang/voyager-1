@@ -15,7 +15,9 @@ imports "wav" from "signalKit";
 #' @param gamma the gamma correction of the rendering, 1 means no correction
 #' @param percentile the black point and the white point percentiles of the auto levels
 #' @param palette the palette name of the pseudo color rendering
-#' @param smooth the radius of the across scan line smoothing, 0 for disable
+#' @param smooth the radius of the across scan line smoothing, 0 for disable.
+#'               the smoothing is disabled by default because it reduces the edge
+#'               contrast of the decoded image and makes it look blurred
 #' @param luminous render the image as the pseudo color image
 #' @param report print the empirical analysis report of the data section
 #' 
@@ -28,7 +30,7 @@ let decodeImage = function(start as integer, wavFile as string,
 						   gamma = 1,
 						   percentile = NULL,
 						   palette = "gray",
-						   smooth = 2,
+						   smooth = 0,
 						   luminous = FALSE,
 						   report = FALSE) {
 

@@ -73,6 +73,11 @@ Module Rscript
     ''' <param name="lines">the number of the scan lines (the image columns), 0 for the default 512</param>
     ''' <param name="align">apply the per scan line synchronization</param>
     ''' <param name="guard">the samples which are skipped after the sync pulse position</param>
+    ''' <param name="mode">
+    ''' the pixel cell intensity estimator: ``mean`` (the default, the signed mean of
+    ''' the cell samples, it matches the legacy decoder result), ``abs`` (the rectified
+    ''' mean) or ``rms``. the rectified estimators are much noisier.
+    ''' </param>
     ''' <param name="env"></param>
     <ExportAPI("decode")>
     <RApiReturn(GetType(PixelDecode))>
@@ -84,6 +89,7 @@ Module Rscript
                                    Optional lines As Integer = 0,
                                    Optional align As Boolean = True,
                                    Optional guard# = 0,
+                                   Optional mode As String = "mean",
                                    Optional env As Environment = Nothing) As Object
 
         Dim samples As Sample() = wav.data _
@@ -111,6 +117,7 @@ Module Rscript
         End If
 
         args.align = align
+        args.mode = LineDemodulator.ParseMode(mode)
 
         Return ImageDecoder.DecodeSection(data, args)
     End Function

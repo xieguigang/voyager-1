@@ -13,6 +13,7 @@ decode \- Decode the wav data as the image pixels
 \fBlines\fR as integer = 0,
 \fBalign\fR as boolean = TRUE,
 \fBguard\fR as double = 0,
+\fBmode\fR as string = "mean",
 [\fB<Environment>\fR]);\fR
 .SH DESCRIPTION
 .PP
@@ -53,6 +54,9 @@ kept only for the backward compatibility of the existing scripts.
 .PP
 .PP
 \fBguard\fB \fR\- 0. the samples which are skipped after the sync pulse position.
+.PP
+.PP
+\fBmode\fB \fR\- "mean". the pixel cell intensity estimator: \fBmean\fR (the default, the signed mean of the cell samples, it matches the legacy decoder result), \fBabs\fR (the rectified mean) or \fBrms\fR. the rectified estimators are much noisier.
 .PP
 .PP
 \fBenv\fB \fR\- -.

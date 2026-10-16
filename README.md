@@ -60,6 +60,13 @@ image was smeared and the circles became ellipses. the new implementation:
 * resamples the samples of a scan line into the pixel cells by the **area
   averaging** (with the exact sub sample cell boundaries), so the pixel phase is
   identical on every scan line;
+* combines the samples of a pixel cell by the **signed mean** (the ``Mean`` mode).
+  the image brightness is the local level of the analog signal, so the plain mean
+  is a linear low pass filter and it gives the cleanest image. the rectified
+  estimators (``Absolute``/``Rms``) fold the noise of the analog recording into a
+  positive offset: they make the decoded image about 2 times noisier (the measured
+  mean absolute neighbouring gradient of the calibration circle rises from ``8.0``
+  to ``14.3``) and they are not used by default any more;
 * normalizes the intensity by the **percentile auto levels** instead of the
   global min/max, so a single spike outlier can not compress the image into a
   flat gray any more;
@@ -67,8 +74,11 @@ image was smeared and the circles became ellipses. the new implementation:
   inverted by default because the disk stores the image as a photographic
   negative (the ink of the picture is a negative amplitude excursion).
 
-the optional ``smooth`` parameter averages a few neighbouring scan lines for
-suppressing the per scan line gain noise of the analog recording.
+the optional ``smooth`` parameter averages a few neighbouring scan lines. it is
+**disabled by default**: averaging only 3 scan lines drops the maximal intensity
+gradient of the calibration circle from ``190`` to ``50``, so the smoothed image
+looks much more blurred than the legacy decoder result although its mean gradient
+is lower. use it only for the very noisy data sections.
 
 | calibration circle (new decoder) | calibration circle (original decoder) |
 | -------------------------------- | ------------------------------------- |
@@ -94,6 +104,19 @@ period and pixel clock are the true ones:
 | Solar location map | 8465560 | 3196.716 | 7.4987 | 24.5 |
 | Mathematical definitions | 10686671 | 3197.594 | 7.5008 | 29.9 |
 | Physical unit definitions | 13001000 | 3197.620 | 7.5009 | 23.6 |
+
+the sharpness of the decoded image is measured by the mean absolute gradient of
+the neighbouring pixels (``gradX`` = across the scan lines, ``gradY`` = inside a
+scan line) and the maximal gradient (the ink edge contrast). the legacy decoder
+output is used as the quality reference:
+
+| image | gradX | gradY | max gradient | remark |
+| ----- | ----- | ----- | ------------ | ------ |
+| legacy decoder | 6.06 | 1.92 | 156 | the reference quality |
+| signed mean, no smoothing (default) | 8.05 | 2.59 | 123 | the closest to the legacy result, the geometry is correct |
+| rectified mean (``--mode abs``) | 14.29 | 4.46 | 187 | the rectification folds the noise, too noisy |
+| rms (``--mode rms``) | 23.96 | 25.45 | 190 | the noisiest |
+| signed mean + ``--smooth 2`` | 5.48 | 3.70 | 82 | the mean gradient is low but the edges are washed out, this is the BLURRED look which should be avoided |
 
 the raster orientation and the ink polarity are checked against the official
 reference images by the ``--compare`` mode (the residual correlation is polarity
@@ -204,6 +227,7 @@ Run the demo script with R# interpreter:
 | lines | 512 | the number of the scan lines (the image columns) |
 | align | TRUE | apply the per scan line synchronization |
 | guard | 0 | the samples which are skipped after the sync pulse position |
+| mode | "mean" | the pixel cell intensity estimator: ``mean`` (the signed mean, the cleanest), ``abs`` (the rectified mean) or ``rms`` |
 | offsetLeft / offsetRight | 0.2 | the legacy parameters of the original implementation, they are not used any more |
 
 ``as.bitmap(pixels, luminous = FALSE, white = 1, gamma = 1, invert = TRUE, percentile = NULL, palette = "gray", smooth = 0, height = 0)``

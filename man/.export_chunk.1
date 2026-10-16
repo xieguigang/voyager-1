@@ -1,8 +1,8 @@
 ﻿.TH _EXPORT_CHUNK 1 2024-Nov "" ".export_chunk"
 .SH NAME
-.export_chunk \- .export_chunk(wav, chunk.name, size = 364, lines = 512, smooth = 2, report = FALSE)
+.export_chunk \- .export_chunk(wav, chunk.name, size = 364, lines = 512, smooth = 0, report = FALSE)
 .SH SYNOPSIS
-\fI.export_chunk(wav, chunk.name, size = 364, lines = 512, smooth = 2, report = FALSE)\fR
+\fI.export_chunk(wav, chunk.name, size = 364, lines = 512, smooth = 0, report = FALSE)\fR
 .SH OPTIONS
 .PP
 \fBwav\fB \fR\- . the wav reader object
@@ -17,7 +17,7 @@
 \fBlines\fB \fR\- 512. the number of the scan lines (the image columns)
 .PP
 .PP
-\fBsmooth\fB \fR\- 2. the radius of the across scan line smoothing
+\fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing
 .PP
 .PP
 \fBreport\fB \fR\- FALSE. print the empirical analysis report of the image section
