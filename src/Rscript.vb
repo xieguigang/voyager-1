@@ -41,20 +41,15 @@
 
 #End Region
 
-Imports System.Drawing
 Imports System.IO
 Imports Microsoft.VisualBasic.CommandLine.Reflection
 Imports Microsoft.VisualBasic.Data.Wave
+Imports Microsoft.VisualBasic.Imaging
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Scripting.MetaData
 Imports Microsoft.VisualBasic.Text
 Imports SMRUCC.Rsharp.Runtime
 Imports SMRUCC.Rsharp.Runtime.Interop
-
-#If NET8_0_OR_GREATER Then
-Imports Bitmap = Microsoft.VisualBasic.Imaging.Bitmap
-#Else
-#End If
 
 <Package("goldenRecord")>
 <RTypeExport("image.chunk", GetType(ImageChunk))>

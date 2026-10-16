@@ -42,18 +42,13 @@
 #End Region
 
 Imports System.Drawing
-Imports System.Drawing.Imaging
 Imports System.Runtime.CompilerServices
 Imports Microsoft.VisualBasic.ComponentModel.Ranges.Model
+Imports Microsoft.VisualBasic.Imaging
 Imports Microsoft.VisualBasic.Imaging.BitmapImage
 Imports Microsoft.VisualBasic.Imaging.Drawing2D.Colors
 Imports Microsoft.VisualBasic.Language
 Imports Microsoft.VisualBasic.Linq
-
-#If NET8_0_OR_GREATER Then
-Imports Bitmap = Microsoft.VisualBasic.Imaging.Bitmap
-#Else
-#End If
 
 Module ImageDecoder
 
@@ -147,14 +142,8 @@ Module ImageDecoder
         Dim globalRange As New DoubleRange(globalMin, globalMax)
         Dim alphaRange As DoubleRange = New Double() {0, 255}
         Dim grayAlpha As Integer
-        Dim memory As Bitmap
         Dim grays As Color() = Designer.GetColors("gray", alphaRange.Max)
-
-#If NET48 Then
-        memory = New Bitmap(width, khzRate, PixelFormat.Format32bppArgb)
-#Else
-        memory = New Bitmap(width, khzRate)
-#End If
+        Dim memory As New Bitmap(width, khzRate)
 
         Using img As BitmapBuffer = BitmapBuffer.FromBitmap(memory)
             For Each columnScan As Single() In scans
