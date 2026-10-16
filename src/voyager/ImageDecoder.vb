@@ -56,6 +56,8 @@ Imports System.Drawing
 Imports System.Runtime.CompilerServices
 Imports Microsoft.VisualBasic.Imaging
 Imports Microsoft.VisualBasic.Linq
+Imports Microsoft.VisualBasic.Math.SignalProcessing
+Imports Microsoft.VisualBasic.Math.SignalProcessing.Waves
 
 Public Module ImageDecoder
 
@@ -71,7 +73,7 @@ Public Module ImageDecoder
         End If
 
         Dim expectedLines As Integer = If(args.lines > 0, args.lines, 0)
-        Dim grid As LineGrid = LineSync.Sync(
+        Dim grid As LineGrid = ScanLineSync.Sync(
             data:=data,
             lines:=expectedLines,
             period:=args.period,
@@ -98,13 +100,14 @@ Public Module ImageDecoder
         Dim options As New DemodulateOptions With {
             .pixels = args.pixels,
             .pixel_pitch = args.pixel_pitch,
+            .slots_per_period = GoldenRecord.CellSlotsPerPeriod,
             .guard = args.guard,
             .remove_baseline = args.remove_baseline,
             .mode = If(args.use_rms, DemodulationMode.Rms, args.mode),
             .use_rms = args.use_rms,
             .baseline_window = args.baseline_window
         }
-        Dim image As Single()() = LineDemodulator.Demodulate(data, grid, options)
+        Dim image As Single()() = CellDemodulator.Demodulate(data, grid, options)
 
         Return New PixelDecode With {
             .pixels = image,
@@ -112,7 +115,7 @@ Public Module ImageDecoder
             .width = grid.count,
             .height = args.pixels,
             .line_period = grid.period,
-            .pixel_pitch = If(options.pixel_pitch > 0, options.pixel_pitch, LineDemodulator.PixelPitch(grid.period)),
+            .pixel_pitch = If(options.pixel_pitch > 0, options.pixel_pitch, CellDemodulator.PixelPitch(grid.period, GoldenRecord.CellSlotsPerPeriod)),
             .sync_offset = grid.sync_offset,
             .line_score = grid.score,
             .jitter_std = grid.jitter_std,
@@ -170,7 +173,7 @@ Public Module ImageDecoder
         Dim index As Single() = New Single(khzRate - 1) {}
 
         For j As Integer = 0 To khzRate - 1
-            index(j) = LineDemodulator.PixelValue(data, j * align, align, 0, DemodulationMode.Mean)
+            index(j) = CellDemodulator.PixelValue(data, j * align, align, 0, DemodulationMode.Mean)
         Next
 
         Return index

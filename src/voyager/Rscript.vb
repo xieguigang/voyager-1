@@ -46,6 +46,7 @@ Imports Microsoft.VisualBasic.CommandLine.Reflection
 Imports Microsoft.VisualBasic.Data.Wave
 Imports Microsoft.VisualBasic.Imaging
 Imports Microsoft.VisualBasic.Language
+Imports Microsoft.VisualBasic.Math.SignalProcessing.Waves
 Imports Microsoft.VisualBasic.Scripting.MetaData
 Imports Microsoft.VisualBasic.Text
 Imports SMRUCC.Rsharp.Runtime
@@ -117,7 +118,7 @@ Module Rscript
         End If
 
         args.align = align
-        args.mode = LineDemodulator.ParseMode(mode)
+        args.mode = CellDemodulator.ParseMode(mode)
 
         Return ImageDecoder.DecodeSection(data, args)
     End Function

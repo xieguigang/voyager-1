@@ -23,7 +23,7 @@ Public Class PixelDecode
     ''' the number of the pixel cells inside a single scan line
     ''' </summary>
     ''' <returns></returns>
-    Public Property size As Integer = SignalAnalysis.DefaultPixelCount
+    Public Property size As Integer = GoldenRecord.DefaultPixelCount
 
     ''' <summary>
     ''' the sample length of each scan line, this is the legacy metadata of the

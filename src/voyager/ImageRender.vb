@@ -16,6 +16,7 @@
 Imports System.Drawing
 Imports Microsoft.VisualBasic.Imaging.Drawing2D.Colors
 Imports Microsoft.VisualBasic.Linq
+Imports Microsoft.VisualBasic.Math.SignalProcessing
 
 ''' <summary>
 ''' the rendering parameters of the decoded image
@@ -244,8 +245,8 @@ Public Module ImageRender
     ''' </summary>
     Public Function AutoLevels(values As Double()(), options As RenderOptions) As Double()
         Dim flat As Double() = values.SelectMany(Function(row) row.AsEnumerable).ToArray
-        Dim low As Double = Dsp.Percentile(flat, options.percentile_low)
-        Dim high As Double = Dsp.Percentile(flat, options.percentile_high)
+        Dim low As Double = MathUtils.Percentile(flat, options.percentile_low)
+        Dim high As Double = MathUtils.Percentile(flat, options.percentile_high)
 
         If options.white <> 1.0 AndAlso options.white > 0 Then
             high = low + (high - low) / options.white

@@ -17,6 +17,7 @@
 ' /********************************************************************************/
 
 Imports System.IO
+Imports Microsoft.VisualBasic.Data.Wave
 Imports Microsoft.VisualBasic.Serialization.JSON
 
 ''' <summary>
@@ -167,7 +168,7 @@ Public Module BatchExporter
 
         Dim list As New List(Of SectionResult)
 
-        Using source As WaveSource = WaveSource.Open(wavPath)
+        Using source As WaveSampleReader = WaveSampleReader.Open(wavPath)
             For Each section As ImageSection In sections
                 Dim item As New SectionResult With {
                     .name = section.name,

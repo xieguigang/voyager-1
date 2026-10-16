@@ -1,6 +1,9 @@
 Imports System
 Imports System.IO
 Imports System.Text
+Imports Microsoft.VisualBasic.Data.Wave
+Imports Microsoft.VisualBasic.Math.SignalProcessing
+Imports Microsoft.VisualBasic.Math.SignalProcessing.Waves
 Imports voyager_1
 
 ''' <summary>
@@ -122,7 +125,7 @@ Friend Module DecoderCli
 
         Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew
 
-        Using source As WaveSource = WaveSource.Open(options.wav)
+        Using source As WaveSampleReader = WaveSampleReader.Open(options.wav)
             Dim data As Single() = source.ReadChannel(options.channel, options.start, options.length)
             Dim args As DecoderArgument = options.DecoderArguments
             Dim image As PixelDecode = ImageDecoder.DecodeSection(data, args)
@@ -313,8 +316,8 @@ Friend Module DecoderCli
         Dim height As Integer = image.Length
         Dim width As Integer = image(0).Length
         Dim flat As Double() = image.SelectMany(Function(row) row.AsEnumerable).ToArray
-        Dim bright As Integer() = ImageCompare.BoundingBox(image, Dsp.Percentile(flat, 0.9))
-        Dim dark As Integer() = ImageCompare.BoundingBox(Negate(image), Dsp.Percentile(Negate(image).SelectMany(Function(row) row.AsEnumerable).ToArray, 0.9))
+        Dim bright As Integer() = ImageCompare.BoundingBox(image, MathUtils.Percentile(flat, 0.9))
+        Dim dark As Integer() = ImageCompare.BoundingBox(Negate(image), MathUtils.Percentile(Negate(image).SelectMany(Function(row) row.AsEnumerable).ToArray, 0.9))
 
         Call Console.WriteLine($"{name}: size {width} x {height}, min={flat.Min.ToString("F4")} max={flat.Max.ToString("F4")} mean={flat.Average.ToString("F4")}")
         Call Console.WriteLine($"{name}: bright box x={bright(0)}, y={bright(1)}, w={bright(2)}, h={bright(3)} ({bright(2) * 100.0 / width:F1}% x {bright(3) * 100.0 / height:F1}%)")
@@ -358,18 +361,19 @@ Friend Module DecoderCli
             Return MeasureRingOnImage(options.image)
         End If
 
-        Using source As WaveSource = WaveSource.Open(options.wav)
+        Using source As WaveSampleReader = WaveSampleReader.Open(options.wav)
             Dim data As Single() = source.ReadChannel(options.channel, options.start, options.length)
-            Dim grid As LineGrid = LineSync.Sync(data, options.lines, options.period, Not options.noAlign, options.alignWindow)
-            Dim pitch As Double = If(options.pitch > 0, options.pitch, LineDemodulator.PixelPitch(grid.period))
+            Dim grid As LineGrid = ScanLineSync.Sync(data, options.lines, options.period, Not options.noAlign, options.alignWindow)
+            Dim pitch As Double = If(options.pitch > 0, options.pitch, CellDemodulator.PixelPitch(grid.period, GoldenRecord.CellSlotsPerPeriod))
             Dim opts As New DemodulateOptions With {
                 .pixels = options.pixels,
                 .pixel_pitch = pitch,
+                .slots_per_period = GoldenRecord.CellSlotsPerPeriod,
                 .guard = options.guard,
                 .remove_baseline = True,
                 .mode = options.mode
             }
-            Dim image As Single()() = LineDemodulator.Demodulate(data, grid, opts)
+            Dim image As Single()() = CellDemodulator.Demodulate(data, grid, opts)
             Dim cells As Integer = image.Length
             Dim lines As Integer = image(0).Length
             Dim skip As Integer = Math.Max(0, Math.Min(cells - 8, options.skipCells))
@@ -691,29 +695,29 @@ Friend Module DecoderCli
         Call Directory.CreateDirectory(dir)
         Call Console.WriteLine($"probing {options.wav} [{options.channelName}] ...")
 
-        Using source As WaveSource = WaveSource.Open(options.wav)
+        Using source As WaveSampleReader = WaveSampleReader.Open(options.wav)
             Dim data As Single() = source.ReadChannel(options.channel, options.start, options.length)
             Dim period As Double = options.period
 
             If period <= 0 Then
-                period = SignalAnalysis.MeasureLinePeriod(data)
+                period = PeriodAnalysis.MeasureLinePeriod(data)
                 Call Console.WriteLine($"the raw scan line period is {period.ToString("F3")} samples ({(source.SampleRate / period).ToString("F2")} Hz)")
 
                 Dim probeLines As Integer = Math.Min(256, CInt(data.Length / period))
                 Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew
 
-                period = Probe.RefinePeriod(data, 0, period, probeLines)
-                Call Console.WriteLine($"the refined scan line period is {period.ToString("F4")} samples (drift {(period - SignalAnalysis.MeasureLinePeriod(data)).ToString("F4")} samples/line), refined in {sw.Elapsed.TotalSeconds.ToString("F2")} seconds")
+                period = ScanLineSync.RefinePeriod(data, 0, period, probeLines)
+                Call Console.WriteLine($"the refined scan line period is {period.ToString("F4")} samples (drift {(period - PeriodAnalysis.MeasureLinePeriod(data)).ToString("F4")} samples/line), refined in {sw.Elapsed.TotalSeconds.ToString("F2")} seconds")
             End If
 
-            Call Console.WriteLine($"the scan line period is {period.ToString("F4")} samples ({(source.SampleRate / period).ToString("F2")} Hz), {SignalAnalysis.DefaultPixelCount} pixels per line, {CInt(data.Length / period)} scan lines on this data section")
+            Call Console.WriteLine($"the scan line period is {period.ToString("F4")} samples ({(source.SampleRate / period).ToString("F2")} Hz), {GoldenRecord.DefaultPixelCount} pixels per line, {CInt(data.Length / period)} scan lines on this data section")
 
             Dim render As RenderOptions = RenderOptions.CreateDefault
-            Dim lines As Integer = SignalAnalysis.DefaultLineCount
+            Dim lines As Integer = GoldenRecord.DefaultLineCount
 
             ' 1. the amplitude oscillogram of the first 32 scan lines
             Dim oscCount As Integer = Math.Min(data.Length, CInt(period * 32))
-            Dim osc As Double()() = Probe.Oscillogram(data, 0, oscCount, 1600, 600)
+            Dim osc As Double()() = FoldAnalysis.Oscillogram(data, 0, oscCount, 1600, 600)
 
             render.percentile_low = 0
             render.percentile_high = 1
@@ -721,7 +725,7 @@ Friend Module DecoderCli
             Call Console.WriteLine($"  -> {dir}/oscillogram.png ({oscCount} samples)")
 
             ' 2. the folded scan line raster
-            Dim fold As Double()() = Probe.Fold(data, 0, period, lines)
+            Dim fold As Double()() = FoldAnalysis.Fold(data, 0, period, lines)
             Dim foldOptions As RenderOptions = RenderOptions.CreateDefault
             foldOptions.percentile_low = 0.02
             foldOptions.percentile_high = 0.98
@@ -729,26 +733,27 @@ Friend Module DecoderCli
             Call Console.WriteLine($"  -> {dir}/fold.png ({fold(0).Length} x {lines})")
 
             ' 3. the folded pixel cell preview
-            Dim preview As Double()() = Probe.FoldPixel(data, 0, period, lines, SignalAnalysis.DefaultPixelCount)
+            Dim preview As Double()() = FoldAnalysis.FoldPixel(data, 0, period, lines, GoldenRecord.DefaultPixelCount)
             Call ImageRender.SavePng($"{dir}/fold-pixel.png", preview, foldOptions)
-            Call Console.WriteLine($"  -> {dir}/fold-pixel.png ({SignalAnalysis.DefaultPixelCount} x {lines})")
+            Call Console.WriteLine($"  -> {dir}/fold-pixel.png ({GoldenRecord.DefaultPixelCount} x {lines})")
 
             ' 3b. the transposed layout, for the scan direction checking
-            Call ImageRender.SavePng($"{dir}/fold-pixel-transposed.png", Probe.Transpose(preview), foldOptions)
-            Call Console.WriteLine($"  -> {dir}/fold-pixel-transposed.png ({lines} x {SignalAnalysis.DefaultPixelCount})")
+            Call ImageRender.SavePng($"{dir}/fold-pixel-transposed.png", preview.MatrixTranspose.ToArray, foldOptions)
+            Call Console.WriteLine($"  -> {dir}/fold-pixel-transposed.png ({lines} x {GoldenRecord.DefaultPixelCount})")
 
             ' 3c. the aligned decoding with the measured pixel clock
             Call Console.WriteLine()
 
-            Dim grid As LineGrid = LineSync.Sync(data, lines, period, Not options.noAlign, options.alignWindow)
+            Dim grid As LineGrid = ScanLineSync.Sync(data, lines, period, Not options.noAlign, options.alignWindow)
             Dim opts As New DemodulateOptions With {
                 .pixels = options.pixels,
-                .pixel_pitch = If(options.pitch > 0, options.pitch, LineDemodulator.PixelPitch(grid.period)),
+                .pixel_pitch = If(options.pitch > 0, options.pitch, CellDemodulator.PixelPitch(grid.period, GoldenRecord.CellSlotsPerPeriod)),
+                .slots_per_period = GoldenRecord.CellSlotsPerPeriod,
                 .guard = options.guard,
                 .remove_baseline = True,
                 .mode = options.mode
             }
-            Dim decoded As Single()() = LineDemodulator.Demodulate(data, grid, opts)
+            Dim decoded As Single()() = CellDemodulator.Demodulate(data, grid, opts)
             Dim decodedOptions As RenderOptions = RenderOptions.CreateDefault
 
             decodedOptions.percentile_low = 0.01
@@ -770,13 +775,13 @@ Friend Module DecoderCli
 
             ' 4. zoom into the scan line sync region
             Dim zoom As Integer = Math.Min(CInt(period), 900)
-            Dim lineStart As Double()() = Probe.Fold(data, 0, period, lines, zoom)
+            Dim lineStart As Double()() = FoldAnalysis.Fold(data, 0, period, lines, zoom)
             Call ImageRender.SavePng($"{dir}/line-start.png", lineStart, foldOptions)
             Call Console.WriteLine($"  -> {dir}/line-start.png ({zoom} x {lines})")
 
             ' 5. the mean scan line waveform
-            Dim meanLine As Double() = Probe.MeanLine(data, 0, period, lines, 3200)
-            Dim meanPlot As Double()() = Probe.Oscillogram(meanLine.Select(Function(v) CSng(v)).ToArray, 0, meanLine.Length, 3200, 400)
+            Dim meanLine As Double() = FoldAnalysis.MeanLine(data, 0, period, lines, 3200)
+            Dim meanPlot As Double()() = FoldAnalysis.Oscillogram(meanLine.Select(Function(v) CSng(v)).ToArray, 0, meanLine.Length, 3200, 400)
 
             Call ImageRender.SavePng($"{dir}/mean-line.png", meanPlot, render)
             Call Console.WriteLine($"  -> {dir}/mean-line.png (3200 samples)")
@@ -789,7 +794,7 @@ Friend Module DecoderCli
             Call Console.WriteLine("scan line amplitude statistics (baseline drift check):")
             Call Console.WriteLine("  index      mean        rms       peak")
 
-            For Each stat As Probe.LineStat In Probe.LineStats(data, 0, period, lines)
+            For Each stat As LineStat In FoldAnalysis.LineStats(data, 0, period, lines)
                 If stat.index < 24 Then
                     Call Console.WriteLine($"  {stat.index,5}  {stat.mean.ToString("F6"),10}  {stat.rms.ToString("F6"),9}  {stat.peak.ToString("F6"),9}")
                 End If
@@ -844,8 +849,8 @@ Friend Module DecoderCli
         Call text.AppendLine($"  --wav <path>       the golden record wave file, by default it is searched from the repository docs directory")
         Call text.AppendLine($"  --start <frame>    the start frame of the image data section (default {Program.DefaultStartFrame})")
         Call text.AppendLine($"  --length <frame>   the frame length of the image data section (default {Program.DefaultLengthFrame})")
-        Call text.AppendLine($"  --pixels <n>       the image pixel cells per scan line (default {SignalAnalysis.DefaultPixelCount})")
-        Call text.AppendLine($"  --lines <n>        the number of the scan lines of the image (default {SignalAnalysis.DefaultLineCount}, 0 for auto detect)")
+        Call text.AppendLine($"  --pixels <n>       the image pixel cells per scan line (default {GoldenRecord.DefaultPixelCount})")
+        Call text.AppendLine($"  --lines <n>        the number of the scan lines of the image (default {GoldenRecord.DefaultLineCount}, 0 for auto detect)")
         Call text.AppendLine($"  --period <samples> the scan line period (default 0, measured from the waveform data)")
         Call text.AppendLine($"  --guard <samples>  the samples which are skipped after the sync pulse position")
         Call text.AppendLine($"  --no-align         disable the per scan line synchronization")
@@ -902,8 +907,8 @@ Friend Class CliOptions
     Public Property percentileHigh As Double = 0.995
     Public Property firstImage As Integer = 0
     Public Property imageCount As Integer = -1
-    Public Property pixels As Integer = SignalAnalysis.DefaultPixelCount
-    Public Property lines As Integer = SignalAnalysis.DefaultLineCount
+    Public Property pixels As Integer = GoldenRecord.DefaultPixelCount
+    Public Property lines As Integer = GoldenRecord.DefaultLineCount
     Public Property guard As Double = 0
     Public Property noAlign As Boolean
     Public Property noRms As Boolean
@@ -935,7 +940,7 @@ Friend Class CliOptions
                 .mode = mode,
                 .use_rms = mode = DemodulationMode.Rms,
                 .align = Not noAlign,
-                .align_window = 48
+                .align_window = alignWindow
             }
         End Get
     End Property
@@ -1115,7 +1120,7 @@ Friend Class CliOptions
     End Function
 
     Private Shared Function ParseMode(value As String) As DemodulationMode
-        Return LineDemodulator.ParseMode(value)
+        Return CellDemodulator.ParseMode(value)
     End Function
 
     Private Shared Function ParseChannel(value As String) As Integer

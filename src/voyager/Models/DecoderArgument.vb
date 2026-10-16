@@ -44,6 +44,7 @@
 
 #End Region
 
+Imports Microsoft.VisualBasic.Math.SignalProcessing.Waves
 Imports Microsoft.VisualBasic.Serialization.JSON
 
 ''' <summary>
@@ -85,7 +86,7 @@ Public Class DecoderArgument
     ''' the number of the pixel cells inside a single scan line
     ''' </summary>
     ''' <returns></returns>
-    Public Property pixels As Integer = SignalAnalysis.DefaultPixelCount
+    Public Property pixels As Integer = GoldenRecord.DefaultPixelCount
 
     ''' <summary>
     ''' the samples per pixel cell, zero means it is evaluated from the scan line period
