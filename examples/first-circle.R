@@ -3,9 +3,7 @@ require(voyager1);
 imports "goldenRecord" from "voyager-1";
 imports "wav" from "signalKit";
 
-const goldenRecord as string = "../docs/384kHzStereo.wav";
-
-setwd(@dir);
+const goldenRecord as string = here("../docs/384kHzStereo.wav");
 
 # A demo R# script for image decode from the goden record wave data
 # this very first circle image on the goden record is used for 
@@ -29,7 +27,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
 
     # run decoder and save the
     # result image file
-    bitmap(file = "../docs/circle.png") {
+    bitmap(file = here("../docs/circle.png")) {
         let decode_data = wav 
         |> decode(
             chunk       = first_circle, 
@@ -39,7 +37,7 @@ using wav as read.wav(file = file(goldenRecord), lazy = TRUE) {
         );
 
         # export signal intensity scale data into csv file
-        write_csv(decode_data, file = "../docs/circle.csv");
+        write_csv(decode_data, file = here("../docs/circle.csv"));
         
         # rendering as bitmap image in gray scale
         decode_data |> as.bitmap() 
