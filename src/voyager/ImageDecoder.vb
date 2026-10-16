@@ -111,7 +111,7 @@ Public Module ImageDecoder
             .width = grid.count,
             .height = args.pixels,
             .line_period = grid.period,
-            .pixel_pitch = If(options.pixel_pitch > 0, options.pixel_pitch, grid.period / args.pixels),
+            .pixel_pitch = If(options.pixel_pitch > 0, options.pixel_pitch, LineDemodulator.PixelPitch(grid.period)),
             .sync_offset = grid.sync_offset,
             .line_score = grid.score,
             .jitter_std = grid.jitter_std,

@@ -24,15 +24,38 @@ Imports Microsoft.VisualBasic.Linq
 Public Module SignalAnalysis
 
     ''' <summary>
-    ''' the number of the image pixels on a single scan line, this value is measured
-    ''' from the golden record waveform data (the disc cover has the value 512)
+    ''' the number of the image pixel cells on a single scan line.
+    ''' 
+    ''' this value is measured from the official calibration circle image of the golden
+    ''' record (the reference image is 529 x 364 pixels): the scan line of the analog
+    ''' signal is one image column, and the image rows are the pixel cells inside the
+    ''' scan line, so the image is 364 pixel cells high.
     ''' </summary>
-    Public Const DefaultPixelCount As Integer = 384
+    Public Const DefaultPixelCount As Integer = 364
 
     ''' <summary>
-    ''' the number of the scan lines of a single image
+    ''' the number of the scan lines of a single image (the value 512 on the cover of
+    ''' the golden record)
     ''' </summary>
     Public Const DefaultLineCount As Integer = 512
+
+    ''' <summary>
+    ''' the number of the pixel cell slots inside a single scan line period.
+    ''' 
+    ''' the golden record image data has a leading blanking/sync region on each scan
+    ''' line, so the scan line period contains more pixel cell slots than the image
+    ''' pixel number. this value is measured from the calibration circle image of the
+    ''' golden record: the ring of the calibration image is a true circle only at this
+    ''' pixel clock, that is about 7.5 samples per pixel cell (a 51.2 kHz pixel clock)
+    ''' on the 384kHz wave file.
+    ''' </summary>
+    Public Const CellSlotsPerPeriod As Double = 426.3
+
+    ''' <summary>
+    ''' the measured samples per pixel cell of the golden record image data on the
+    ''' 384kHz wave file
+    ''' </summary>
+    Public Const NominalPixelPitch As Double = 7.5
 
     ''' <summary>
     ''' run the empirical analysis of a given data section on the golden record wave file
@@ -91,7 +114,7 @@ Public Module SignalAnalysis
 
             report.line_period = period.period
             report.line_period_score = period.score
-            report.samples_per_pixel = period.period / DefaultPixelCount
+            report.samples_per_pixel = period.period / CellSlotsPerPeriod
             report.pixel_rate = source.SampleRate / report.samples_per_pixel
 
             ' sync pulse positions and their interval statistics

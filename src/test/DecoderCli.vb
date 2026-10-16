@@ -39,6 +39,8 @@ Friend Module DecoderCli
                 Return RunProbe(options)
             ElseIf options.compare Then
                 Return RunCompare(options)
+            ElseIf options.ring Then
+                Return RunRing(options)
             ElseIf options.batch Then
                 Call Console.Error.WriteLine("[error] the --batch mode is not available yet!")
                 Return 9
@@ -222,6 +224,351 @@ Friend Module DecoderCli
     End Function
 
     ''' <summary>
+    ''' the pixel clock calibration: the calibration circle of the golden record is a
+    ''' true circle, so the ring of the decoded calibration circle image must have the
+    ''' same physical width (in scan lines) and height (in pixel cells).
+    ''' 
+    ''' the relation of the pixel clock calibration is:
+    ''' 
+    ''' ```
+    ''' N = pixelClock * dx / dy
+    ''' ```
+    ''' 
+    ''' where the ``N`` is the number of the pixel cells per scan line which makes the
+    ''' calibration circle round again, the ``pixelClock`` is the number of the cell
+    ''' slots which are used for one scan line period, and the ``dx``/``dy`` are the
+    ''' measured extents of the ring on the scan line axis and the pixel cell axis.
+    ''' </summary>
+    Private Function RunRing(options As CliOptions) As Integer
+        If Not String.IsNullOrEmpty(options.image) Then
+            Return MeasureRingOnImage(options.image)
+        End If
+
+        Using source As WaveSource = WaveSource.Open(options.wav)
+            Dim data As Single() = source.ReadChannel(options.channel, options.start, options.length)
+            Dim grid As LineGrid = LineSync.Sync(data, options.lines, options.period, Not options.noAlign, options.alignWindow)
+            Dim pitch As Double = If(options.pitch > 0, options.pitch, LineDemodulator.PixelPitch(grid.period))
+            Dim opts As New DemodulateOptions With {
+                .pixels = options.pixels,
+                .pixel_pitch = pitch,
+                .guard = options.guard,
+                .remove_baseline = True,
+                .use_rms = True
+            }
+            Dim image As Single()() = LineDemodulator.Demodulate(data, grid, opts)
+            Dim cells As Integer = image.Length
+            Dim lines As Integer = image(0).Length
+            Dim skip As Integer = Math.Max(0, Math.Min(cells - 8, options.skipCells))
+            Dim used As Integer = cells - skip
+
+            Call Console.WriteLine($"scan line period : {grid.period.ToString("F5")} samples, sync offset {grid.sync_offset.ToString("F2")}")
+            Call Console.WriteLine($"pixel clock      : {pitch.ToString("F5")} samples x {options.pixels} cells, guard {options.guard.ToString("F2")} samples")
+            Call Console.WriteLine($"raster           : {lines} scan lines x {cells} cells (the last {skip} cells are excluded from the analysis)")
+            Call Console.WriteLine()
+
+            Dim flat As Double() = MatrixValues(image, used, lines)
+            Dim residual As Double()() = BackgroundRemoved(image, used, lines, 12)
+
+            Call Console.WriteLine($"intensity range  : {flat.Min.ToString("F4")} .. {flat.Max.ToString("F4")}, mean {flat.Average.ToString("F4")}")
+            Call Console.WriteLine()
+
+            Dim crossings As Integer() = RingCrossings(residual, used, lines)
+            Dim dx As Integer = crossings(1)
+            Dim dy As Integer = crossings(3)
+
+            Call Console.WriteLine($"the ring crossings: dx={dx} scan lines, dy={dy} pixel cells")
+            Call Console.WriteLine($"the ring roundness: dy/dx={(dy / CDbl(dx)).ToString("F4")}")
+
+            If dy > 0 Then
+                Call Console.WriteLine($"the square pixel pitch: {pitch.ToString("F5")} * dx / dy = {(pitch * dx / CDbl(dy)).ToString("F5")} samples per pixel")
+                Call Console.WriteLine($"the square pixel clock: {options.pixels * dx / CDbl(dy):F1} cell slots per scan line period")
+            End If
+
+            Call Console.WriteLine()
+            Call PrintRowVariance(image, used, lines, 48)
+
+            Return 0
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' print the across scan line standard deviation of each pixel cell row.
+    ''' 
+    ''' the sync pulse and the blanking level are constant on every scan line, so
+    ''' their rows have a much smaller across line deviation than the image data rows,
+    ''' this profile locates the blanking region of the scan line.
+    ''' </summary>
+    Private Sub PrintRowVariance(image As Single()(), rows As Integer, cols As Integer, bins As Integer)
+        Dim sigma As Double() = New Double(rows - 1) {}
+
+        For r As Integer = 0 To rows - 1
+            Dim sum As Double = 0
+
+            For c As Integer = 0 To cols - 1
+                sum += image(r)(c)
+            Next
+
+            Dim mean As Double = sum / cols
+            Dim square As Double = 0
+
+            For c As Integer = 0 To cols - 1
+                square += (image(r)(c) - mean) ^ 2
+            Next
+
+            sigma(r) = Math.Sqrt(square / cols)
+        Next
+
+        Dim max As Double = sigma.Max
+        Dim step_ As Integer = Math.Max(1, rows \ bins)
+
+        Call Console.WriteLine("across scan line deviation profile (low value = the blanking region):")
+
+        For i As Integer = 0 To bins - 1
+            Dim from As Integer = i * step_
+            Dim [to] As Integer = Math.Min(rows, from + step_)
+
+            If [to] <= from Then
+                Continue For
+            End If
+
+            Dim sum As Double = 0
+
+            For r As Integer = from To [to] - 1
+                sum += sigma(r)
+            Next
+
+            Dim value As Double = sum / ([to] - from)
+            Dim bar As Integer = If(max = 0, 0, CInt(value / max * 48))
+
+            Call Console.WriteLine($"  {from,4}-{[to] - 1,-4}: {value.ToString("F5").PadLeft(9)} {New String("#"c, bar)}")
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' measure the calibration ring of a decoded raster or of an image file
+    ''' </summary>
+    Private Function MeasureRingOnImage(path As String) As Integer
+        Dim png As PngImage = PngReader.Load(path)
+        Dim gray As Double()() = png.Gray
+        Dim rows As Integer = gray.Length
+        Dim cols As Integer = gray(0).Length
+        Dim residual As Double()() = BackgroundRemoved(gray, rows, cols, 12)
+
+        Call Console.WriteLine($"image            : {path} ({cols} x {rows})")
+        Call Console.WriteLine()
+
+        Return ReportRing(residual, rows, cols)
+    End Function
+
+    Private Function ReportRing(residual As Double()(), rows As Integer, cols As Integer) As Integer
+        Dim crossings As Integer() = RingCrossings(residual, rows, cols)
+        Dim dx As Integer = crossings(1) - crossings(0)
+        Dim dy As Integer = crossings(3) - crossings(2)
+
+        Call Console.WriteLine($"the ring crossings: left x={crossings(0)}, right x={crossings(1)} (of {cols}); top y={crossings(2)}, bottom y={crossings(3)} (of {rows})")
+        Call Console.WriteLine($"the ring extents  : dx={dx} pixels, dy={dy} pixels, dy/dx={(dy / CDbl(dx)).ToString("F4")}")
+
+        Return 0
+    End Function
+
+    ''' <summary>
+    ''' locate the calibration ring by the crossings of a straight line through the
+    ''' raster centre: the ring is a closed curve, so the line crosses it exactly twice.
+    ''' the median of several cut lines is used for the robustness.
+    ''' </summary>
+    Private Function RingCrossings(residual As Double()(), rows As Integer, cols As Integer) As Integer()
+        Dim margin As Integer = 6
+        Dim dxs As New List(Of Integer)
+        Dim dys As New List(Of Integer)
+
+        ' the horizontal cuts give the ring width on the scan line axis
+        For Each offset As Integer In {-cols \ 12, -cols \ 24, 0, cols \ 24, cols \ 12}
+            Dim row As Integer = rows \ 2 + offset
+            Dim x1 As Integer = 0
+            Dim x2 As Integer = 0
+
+            If TryScan(cols, Function(i) residual(row)(i), margin, x1, x2) Then
+                dxs.Add(x2 - x1)
+            End If
+        Next
+
+        ' the vertical cuts give the ring height on the pixel cell axis
+        For Each offset As Integer In {-rows \ 12, -rows \ 24, 0, rows \ 24, rows \ 12}
+            Dim col As Integer = cols \ 2 + offset
+            Dim y1 As Integer = 0
+            Dim y2 As Integer = 0
+
+            If TryScan(rows, Function(i) residual(i)(col), margin, y1, y2) Then
+                dys.Add(y2 - y1)
+            End If
+        Next
+
+        Dim dx As Integer = Median(dxs.ToArray)
+        Dim dy As Integer = Median(dys.ToArray)
+
+        Return {0, dx, 0, dy}
+    End Function
+
+    ''' <summary>
+    ''' scan a line profile and return the two strongest peaks on the left and the
+    ''' right part of the profile
+    ''' </summary>
+    Private Function TryScan(n As Integer, profile As Func(Of Integer, Double),
+                             margin As Integer, ByRef left As Integer, ByRef right As Integer) As Boolean
+        Dim middle As Integer = n \ 2
+        Dim best As Double = Double.MinValue
+        Dim i As Integer
+
+        left = 0
+        right = 0
+
+        For i = margin To middle - 1
+            If Math.Abs(profile(i)) > best Then
+                best = Math.Abs(profile(i))
+                left = i
+            End If
+        Next
+
+        best = Double.MinValue
+
+        For i = middle + 1 To n - margin - 1
+            If Math.Abs(profile(i)) > best Then
+                best = Math.Abs(profile(i))
+                right = i
+            End If
+        Next
+
+        Return right > left
+    End Function
+
+    Private Function Median(values As Integer()) As Integer
+        If values.Length = 0 Then
+            Return 0
+        End If
+
+        Dim sorted As Integer() = values.ToArray
+
+        Array.Sort(sorted)
+
+        Return sorted(sorted.Length \ 2)
+    End Function
+
+    ''' <summary>
+    ''' remove the smooth background of the raster by a box blur, the thin ink curve
+    ''' of the calibration ring is highlighted by this filter
+    ''' </summary>
+    Private Function BackgroundRemoved(image As Single()(), rows As Integer, cols As Integer,
+                                       radius As Integer) As Double()()
+        Return BackgroundRemoved(ImageRender.ToDouble(image), rows, cols, radius)
+    End Function
+
+    Private Function BackgroundRemoved(image As Double()(), rows As Integer, cols As Integer,
+                                       radius As Integer) As Double()()
+        Dim smooth As Double()() = New Double(rows - 1)() {}
+        Dim result As Double()() = New Double(rows - 1)() {}
+        Dim r As Integer
+        Dim c As Integer
+
+        For r = 0 To rows - 1
+            smooth(r) = New Double(cols - 1) {}
+            result(r) = New Double(cols - 1) {}
+        Next
+
+        For r = 0 To rows - 1
+            For c = 0 To cols - 1
+                Dim sum As Double = 0
+                Dim n As Integer = 0
+                Dim r0 As Integer = Math.Max(0, r - radius)
+                Dim r1 As Integer = Math.Min(rows - 1, r + radius)
+                Dim c0 As Integer = Math.Max(0, c - radius)
+                Dim c1 As Integer = Math.Min(cols - 1, c + radius)
+
+                For y As Integer = r0 To r1
+                    For x As Integer = c0 To c1
+                        sum += image(y)(x)
+                        n += 1
+                    Next
+                Next
+
+                smooth(r)(c) = sum / n
+            Next
+        Next
+
+        For r = 0 To rows - 1
+            For c = 0 To cols - 1
+                result(r)(c) = image(r)(c) - smooth(r)(c)
+            Next
+        Next
+
+        Return result
+    End Function
+
+    Private Sub PrintRing(name As String, box As Integer(), pixelClock As Integer, lines As Integer, used As Integer)
+        Dim w As Integer = box(2)
+        Dim h As Integer = box(3)
+
+        If w <= 0 OrElse h <= 0 Then
+            Call Console.WriteLine($" {name,-10}  not detected")
+            Return
+        End If
+
+        Call Console.WriteLine($" {name,-10} {w,9} {h,11} {(h / CDbl(w)).ToString("F3"),8} {(pixelClock * w / CDbl(h)).ToString("F1"),14}")
+        Call Console.WriteLine($"            box: x={box(0)}..{box(0) + w - 1} of {lines}, y={box(1)}..{box(1) + h - 1} of {used}")
+    End Sub
+
+    Private Function MatrixValues(image As Single()(), rows As Integer, cols As Integer) As Double()
+        Dim values As Double() = New Double(rows * cols - 1) {}
+        Dim p As Integer = 0
+
+        For r As Integer = 0 To rows - 1
+            For c As Integer = 0 To cols - 1
+                values(p) = image(r)(c)
+                p += 1
+            Next
+        Next
+
+        Return values
+    End Function
+
+    Private Function MatrixValues(image As Double()(), rows As Integer, cols As Integer) As Double()
+        Dim values As Double() = New Double(rows * cols - 1) {}
+        Dim p As Integer = 0
+
+        For r As Integer = 0 To rows - 1
+            For c As Integer = 0 To cols - 1
+                values(p) = image(r)(c)
+                p += 1
+            Next
+        Next
+
+        Return values
+    End Function
+    Private Function RingBox(image As Double()(), rows As Integer, cols As Integer,
+                             [select] As Func(Of Double, Boolean)) As Integer()
+        Dim minX As Integer = Integer.MaxValue
+        Dim maxX As Integer = Integer.MinValue
+        Dim minY As Integer = Integer.MaxValue
+        Dim maxY As Integer = Integer.MinValue
+
+        For r As Integer = 0 To rows - 1
+            For c As Integer = 0 To cols - 1
+                If [select](image(r)(c)) Then
+                    If c < minX Then minX = c
+                    If c > maxX Then maxX = c
+                    If r < minY Then minY = r
+                    If r > maxY Then maxY = r
+                End If
+            Next
+        Next
+
+        If minX > maxX Then
+            Return {0, 0, 0, 0}
+        End If
+
+        Return {minX, minY, maxX - minX + 1, maxY - minY + 1}
+    End Function
+
+    ''' <summary>
     ''' the debug visualization of the raw waveform structure
     ''' </summary>
     Private Function RunProbe(options As CliOptions) As Integer
@@ -276,19 +623,36 @@ Friend Module DecoderCli
             Call ImageRender.SavePng($"{dir}/fold-pixel-transposed.png", Probe.Transpose(preview), foldOptions)
             Call Console.WriteLine($"  -> {dir}/fold-pixel-transposed.png ({lines} x {SignalAnalysis.DefaultPixelCount})")
 
-            ' 3c. pixel clock calibration via the calibration circle roundness
+            ' 3c. the aligned decoding with the measured pixel clock
+            Call Console.WriteLine()
+
+            Dim grid As LineGrid = LineSync.Sync(data, lines, period, Not options.noAlign, options.alignWindow)
+            Dim opts As New DemodulateOptions With {
+                .pixels = options.pixels,
+                .pixel_pitch = If(options.pitch > 0, options.pitch, LineDemodulator.PixelPitch(grid.period)),
+                .guard = options.guard,
+                .remove_baseline = True,
+                .use_rms = True
+            }
+            Dim decoded As Single()() = LineDemodulator.Demodulate(data, grid, opts)
+            Dim decodedOptions As RenderOptions = RenderOptions.CreateDefault
+
+            decodedOptions.percentile_low = 0.01
+            decodedOptions.percentile_high = 0.99
+            Call ImageRender.SavePng($"{dir}/decoded.png", decoded, decodedOptions)
+            Call Console.WriteLine($"  -> {dir}/decoded.png ({decoded(0).Length} x {decoded.Length})")
+
             Call Console.WriteLine()
             Call Console.WriteLine("pixel clock calibration (the calibration circle must be a round circle):")
-            Call Console.WriteLine("   cells    ring dx    ring dy     dy/dx")
+            Call Console.WriteLine($"  pixel clock    : {opts.pixel_pitch.ToString("F5")} samples per pixel cell")
 
-            For Each cells As Integer In New Integer() {320, 384, 400, 416, 448, 480, 512, 544, 576, 640}
-                Dim dx As Integer = 0
-                Dim dy As Integer = 0
+            Dim crossings As Integer() = RingCrossings(BackgroundRemoved(decoded, decoded.Length, decoded(0).Length, 12), decoded.Length, decoded(0).Length)
 
-                If Probe.MeasureCircle(data, 0, period, lines, cells, dx, dy) Then
-                    Call Console.WriteLine($"  {cells,6}    {dx,7}    {dy,7}    {(dy / CDbl(dx)).ToString("F3")}")
-                End If
-            Next
+            If crossings(3) > 0 AndAlso crossings(1) > 0 Then
+                Call Console.WriteLine($"  the ring       : dx={crossings(1)} scan lines, dy={crossings(3)} pixel cells, dy/dx={(crossings(3) / CDbl(crossings(1))).ToString("F4")}")
+                Call Console.WriteLine($"  the round pitch: {(opts.pixel_pitch * crossings(1) / CDbl(crossings(3))).ToString("F5")} samples per pixel cell")
+                Call Console.WriteLine($"  the round clock: {(grid.period / (opts.pixel_pitch * crossings(1) / CDbl(crossings(3)))).ToString("F1")} cell slots per scan line period")
+            End If
 
             ' 4. zoom into the scan line sync region
             Dim zoom As Integer = Math.Min(CInt(period), 900)
@@ -353,12 +717,23 @@ Friend Module DecoderCli
         Call text.AppendLine("       [--out <png path>] [--gamma <value>] [--percentile <low,high>]")
         Call text.AppendLine("       [--white <value>] [--invert] [--palette <name>] [--csv <path>]")
         Call text.AppendLine()
+        Call text.AppendLine("  test --probe [--out <directory>] [--period <samples>]")
+        Call text.AppendLine()
+        Call text.AppendLine("  test --ring [--pixels <n>] [--pitch <samples>] [--guard <samples>] [--skip-cells <n>]")
+        Call text.AppendLine("       [--image <png path>]    the pixel clock calibration via the calibration circle roundness")
+        Call text.AppendLine()
         Call text.AppendLine("  test --batch [--out <directory>] [--first <n>] [--count <n>] [--channel <left|right>]")
         Call text.AppendLine()
         Call text.AppendLine("common options:")
         Call text.AppendLine($"  --wav <path>       the golden record wave file, by default it is searched from the repository docs directory")
         Call text.AppendLine($"  --start <frame>    the start frame of the image data section (default {Program.DefaultStartFrame})")
         Call text.AppendLine($"  --length <frame>   the frame length of the image data section (default {Program.DefaultLengthFrame})")
+        Call text.AppendLine($"  --pixels <n>       the image pixel cells per scan line (default {SignalAnalysis.DefaultPixelCount})")
+        Call text.AppendLine($"  --lines <n>        the number of the scan lines of the image (default {SignalAnalysis.DefaultLineCount}, 0 for auto detect)")
+        Call text.AppendLine($"  --period <samples> the scan line period (default 0, measured from the waveform data)")
+        Call text.AppendLine($"  --guard <samples>  the samples which are skipped after the sync pulse position")
+        Call text.AppendLine($"  --no-align         disable the per scan line synchronization")
+        Call text.AppendLine($"  --align-window <n> the maximal per scan line alignment shift (default 48 samples)")
 
         Call Console.WriteLine(text.ToString)
     End Sub
@@ -397,6 +772,10 @@ Friend Class CliOptions
     Public Property lines As Integer = SignalAnalysis.DefaultLineCount
     Public Property guard As Double = 0
     Public Property noAlign As Boolean
+    Public Property ring As Boolean
+    Public Property pitch As Double
+    Public Property skipCells As Integer
+    Public Property alignWindow As Integer = 48
 
     Public ReadOnly Property channelName As String
         Get
@@ -537,6 +916,18 @@ Friend Class CliOptions
                     i += 1
                 Case "--no-align"
                     opts.noAlign = True
+                Case "--align-window"
+                    opts.alignWindow = Integer.Parse(value)
+                    i += 1
+                Case "--ring"
+                    opts.ring = True
+                    opts.diagnose = False
+                Case "--pitch"
+                    opts.pitch = Double.Parse(value)
+                    i += 1
+                Case "--skip-cells"
+                    opts.skipCells = Integer.Parse(value)
+                    i += 1
                 Case Else
                     Throw New ArgumentException($"unknown command line option '{args(i)}'!")
             End Select

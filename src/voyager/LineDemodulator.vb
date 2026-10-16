@@ -27,16 +27,14 @@ Imports Microsoft.VisualBasic.Linq
 Public Class DemodulateOptions
 
     ''' <summary>
-    ''' the number of the pixel cells inside a single scan line, it is measured
-    ''' from the calibration circle image: the 384kHz wave file has 384 pixel cells
-    ''' per scan line (the calibration circle of the golden record is a true circle
-    ''' only at this pixel clock)
+    ''' the number of the image pixel cells inside a single scan line (the image rows)
     ''' </summary>
     ''' <returns></returns>
     Public Property pixels As Integer = SignalAnalysis.DefaultPixelCount
 
     ''' <summary>
-    ''' the samples per pixel, zero means it is evaluated from the scan line period
+    ''' the samples per pixel cell, zero means it is evaluated from the scan line
+    ''' period and the measured pixel clock (see <see cref="SignalAnalysis.CellSlotsPerPeriod"/>)
     ''' </summary>
     ''' <returns></returns>
     Public Property pixel_pitch As Double = 0
@@ -73,6 +71,21 @@ End Class
 Public Module LineDemodulator
 
     ''' <summary>
+    ''' the measured pixel clock of the golden record image data: the samples per pixel
+    ''' cell which is evaluated from the scan line period.
+    ''' 
+    ''' one scan line period contains <see cref="SignalAnalysis.CellSlotsPerPeriod"/>
+    ''' pixel cell slots (the leading blanking/sync region takes some of them), so the
+    ''' pixel pitch is NOT ``period / pixels``: using the image pixel number as the cell
+    ''' slot count misses the blanking region and scales the decoded image about 10% in
+    ''' the vertical direction (the calibration circle is then an ellipse instead of a
+    ''' true circle).
+    ''' </summary>
+    Public Function PixelPitch(period As Double) As Double
+        Return period / SignalAnalysis.CellSlotsPerPeriod
+    End Function
+
+    ''' <summary>
     ''' demodulate the scan line grid into the image raster.
     ''' 
     ''' the scan line of the analog signal is one image column, so the returned
@@ -85,7 +98,7 @@ Public Module LineDemodulator
         Dim pitch As Double = options.pixel_pitch
 
         If pitch <= 0 Then
-            pitch = grid.period / options.pixels
+            pitch = PixelPitch(grid.period)
         End If
 
         Dim rows As Integer = options.pixels
