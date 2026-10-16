@@ -41,16 +41,31 @@ Public Class RenderOptions
     Public Property gamma As Double = 1.0
 
     ''' <summary>
-    ''' invert the black/white polarity
+    ''' invert the black/white polarity.
+    ''' 
+    ''' the image data of the golden record is a photographic negative: the dark ink of
+    ''' the picture is stored as a negative amplitude excursion on the analog signal, so
+    ''' the polarity is inverted by default for producing the correct image (a light
+    ''' background with the dark ink lines).
     ''' </summary>
     ''' <returns></returns>
-    Public Property invert As Boolean = False
+    Public Property invert As Boolean = True
 
     ''' <summary>
     ''' the white point gain, it is a legacy compatible parameter of the R# as.bitmap function
     ''' </summary>
     ''' <returns></returns>
     Public Property white As Double = 1.0
+
+    ''' <summary>
+    ''' the radius of the across scan line smoothing (in scan lines), zero for disable.
+    ''' 
+    ''' the analog recording has a per scan line gain noise which appears as the
+    ''' one pixel wide vertical stripes on the decoded image, the smoothing suppresses
+    ''' the stripes at the cost of a slightly lower horizontal resolution.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property smooth As Integer = 0
 
     ''' <summary>
     ''' the palette name of the pseudo color rendering, ``gray`` for the gray scale image
@@ -78,19 +93,26 @@ Public Module ImageRender
     ''' <param name="values">the intensity matrix, the row is the image scan line</param>
     ''' <param name="options"></param>
     Public Function Render(values As Double()(), options As RenderOptions) As Byte()
-        Dim height As Integer = values.Length
-        Dim width As Integer = values(0).Length
-        Dim lut As Color() = BuildLut(options.palette)
-        Dim levels As Double() = AutoLevels(values, options)
+        Dim matrix As Double()() = values
+
+        If options IsNot Nothing AndAlso options.smooth > 0 Then
+            matrix = SmoothColumns(values, options.smooth)
+        End If
+
+        Dim renderOptions As RenderOptions = If(options, RenderOptions.CreateDefault)
+        Dim height As Integer = matrix.Length
+        Dim width As Integer = matrix(0).Length
+        Dim lut As Color() = BuildLut(renderOptions.palette)
+        Dim levels As Double() = AutoLevels(matrix, renderOptions)
         Dim pixels As Byte() = New Byte(width * height * 3 - 1) {}
         Dim p As Integer = 0
 
-        For Each row As Double() In values
+        For Each row As Double() In matrix
             For x As Integer = 0 To width - 1
                 Dim level As Double = (row(x) - levels(0)) / (levels(1) - levels(0))
                 Dim color As Color
 
-                If options.invert Then
+                If renderOptions.invert Then
                     level = 1.0 - level
                 End If
 
@@ -100,8 +122,8 @@ Public Module ImageRender
                     level = 1
                 End If
 
-                If options.gamma <> 1.0 Then
-                    level = level ^ options.gamma
+                If renderOptions.gamma <> 1.0 Then
+                    level = level ^ renderOptions.gamma
                 End If
 
                 color = lut(CInt(Math.Round(level * (lut.Length - 1))))
@@ -143,6 +165,42 @@ Public Module ImageRender
 
         Call PngWriter.Save(path, Render(matrix, options), matrix(0).Length, matrix.Length, 3)
     End Sub
+
+    ''' <summary>
+    ''' smooth the intensity matrix along the scan line direction (the image columns).
+    ''' 
+    ''' the row of the intensity matrix is one scan line, so the smoothing is applied
+    ''' on the column direction for removing the per scan line gain noise.
+    ''' </summary>
+    ''' <param name="values">the intensity matrix: ``values(row)(column)``</param>
+    ''' <param name="radius">the radius of the smoothing window in scan lines</param>
+    Public Function SmoothColumns(values As Double()(), radius As Integer) As Double()()
+        Dim height As Integer = values.Length
+        Dim width As Integer = values(0).Length
+        Dim result As Double()() = New Double(height - 1)() {}
+
+        For y As Integer = 0 To height - 1
+            result(y) = New Double(width - 1) {}
+        Next
+
+        For x As Integer = 0 To width - 1
+            Dim from As Integer = Math.Max(0, x - radius)
+            Dim [to] As Integer = Math.Min(width - 1, x + radius)
+            Dim n As Integer = [to] - from + 1
+
+            For y As Integer = 0 To height - 1
+                Dim sum As Double = 0
+
+                For c As Integer = from To [to]
+                    sum += values(y)(c)
+                Next
+
+                result(y)(x) = sum / n
+            Next
+        Next
+
+        Return result
+    End Function
 
     ''' <summary>
     ''' convert the single precision intensity matrix into a double precision matrix

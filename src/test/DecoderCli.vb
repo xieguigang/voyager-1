@@ -762,7 +762,8 @@ Friend Class CliOptions
     Public Property csv As String
     Public Property gamma As Double = 1.0
     Public Property white As Double = 1.0
-    Public Property invert As Boolean
+    Public Property invert As Boolean = True
+    Public Property smooth As Integer = 2
     Public Property palette As String = "gray"
     Public Property percentileLow As Double = 0.005
     Public Property percentileHigh As Double = 0.995
@@ -772,6 +773,7 @@ Friend Class CliOptions
     Public Property lines As Integer = SignalAnalysis.DefaultLineCount
     Public Property guard As Double = 0
     Public Property noAlign As Boolean
+    Public Property noRms As Boolean
     Public Property ring As Boolean
     Public Property pitch As Double
     Public Property skipCells As Integer
@@ -794,7 +796,7 @@ Friend Class CliOptions
                 .pixels = pixels,
                 .guard = guard,
                 .remove_baseline = True,
-                .use_rms = True,
+                .use_rms = Not noRms,
                 .align = Not noAlign,
                 .align_window = 48
             }
@@ -812,6 +814,7 @@ Friend Class CliOptions
                 .gamma = gamma,
                 .white = white,
                 .invert = invert,
+                .smooth = smooth,
                 .palette = palette
             }
         End Get
@@ -886,6 +889,11 @@ Friend Class CliOptions
                     i += 1
                 Case "--invert"
                     opts.invert = True
+                Case "--positive", "--no-invert"
+                    opts.invert = False
+                Case "--smooth"
+                    opts.smooth = Integer.Parse(value)
+                    i += 1
                 Case "--palette"
                     opts.palette = value
                     i += 1
@@ -916,6 +924,8 @@ Friend Class CliOptions
                     i += 1
                 Case "--no-align"
                     opts.noAlign = True
+                Case "--no-rms"
+                    opts.noRms = True
                 Case "--align-window"
                     opts.alignWindow = Integer.Parse(value)
                     i += 1

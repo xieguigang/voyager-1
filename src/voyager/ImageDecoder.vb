@@ -194,8 +194,9 @@ Public Module ImageDecoder
         options.percentile_low = 0.01
         options.percentile_high = 0.99
 
-        ' the disc image is a positive image: the bright pixel has a larger amplitude
-        options.invert = False
+        ' the image data of the golden record is stored as a photographic negative:
+        ' the ink of the picture is a negative amplitude excursion
+        options.invert = True
 
         Dim rgb As Byte() = ImageRender.Render(scans, options)
         Dim height As Integer = scans.Length
