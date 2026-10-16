@@ -22,16 +22,21 @@
 
         <h3>Description</h3>
 
-        
+        <p>the scan line period and the pixel clock are measured from the waveform data itself (see the <code>decode.report</code> function), the legacy <code>windowSize</code> and <code>offset</code> parameters of the decoder are not used any more.</p>
 
         <h3>Usage</h3>
 
         <div style="width: 100%; padding-left: 3%; color: black;">
             <pre><code class='language-R' style="color: black; font-weight:normal;"><strong>decodeImage</strong>(<i>start</i>, <i>wavFile</i>,
-    <i>offsetLeft</i> = <span style='color: green;'>0.15</span>,
-    <i>offsetRight</i> = <span style='color: green;'>0.1</span>,
-    <i>white</i> = <span style='color: green;'>0.8</span>,
-    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>);</code></pre>
+    <i>size</i> = <span style='color: green;'>364</span>,
+    <i>lines</i> = <span style='color: green;'>512</span>,
+    <i>white</i> = <span style='color: green;'>1</span>,
+    <i>gamma</i> = <span style='color: green;'>1</span>,
+    <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
+    <i>palette</i> = <span style='color: #808080;'><strong>'gray'</strong></span>,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>);</code></pre>
         </div>
 
         <h3>Arguments</h3>
@@ -46,12 +51,40 @@
 <dd><p><p>the file path of the wav file</p></p></dd>
 
 
-<dt>offsetLeft</dt>
-<dd><p><p>percentage of the margin on the left for each scan line</p></p></dd>
+<dt>size</dt>
+<dd><p><p>the pixel cells (the image rows) inside a single scan line, default 364</p></p></dd>
 
 
-<dt>offsetRight</dt>
-<dd><p><p>percentage of the margin on the right for each scan line</p></p></dd>
+<dt>lines</dt>
+<dd><p><p>the number of the scan lines (the image columns), default 512</p></p></dd>
+
+
+<dt>white</dt>
+<dd><p><p>the white point gain of the rendering, 1 means no adjustment</p></p></dd>
+
+
+<dt>gamma</dt>
+<dd><p><p>the gamma correction of the rendering, 1 means no correction</p></p></dd>
+
+
+<dt>percentile</dt>
+<dd><p><p>the black point and the white point percentiles of the auto levels</p></p></dd>
+
+
+<dt>palette</dt>
+<dd><p><p>the palette name of the pseudo color rendering</p></p></dd>
+
+
+<dt>smooth</dt>
+<dd><p><p>the radius of the across scan line smoothing, 0 for disable. the smoothing is disabled by default because it reduces the edge contrast of the decoded image and makes it look blurred</p></p></dd>
+
+
+<dt>luminous</dt>
+<dd><p><p>render the image as the pseudo color image</p></p></dd>
+
+
+<dt>report</dt>
+<dd><p><p>print the empirical analysis report of the data section</p></p></dd>
 
         </table>
 
@@ -83,4 +116,4 @@
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("example_r");</script>
 
-</html>
+</html>

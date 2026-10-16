@@ -30,10 +30,30 @@
             <code id="clr_ts">
 # namespace voyager_1
 export class PixelDecode {
+   # has the per scan line synchronization been applied
+   aligned: boolean;
+   # the sample length of each scan line, this is the legacy metadata of the original implementation and it is kept for the backward compatibility
    aligns: integer;
+   # the image height in pixels (the number of the scan lines)
+   height: integer;
+   # the standard deviation (in samples) of the per scan line alignment shifts, it is the residual jitter which is removed by the synchronization
+   jitter_std: double;
+   # the number of the image rows (the scan lines)
    length: integer;
+   # the measured scan line period (in samples)
+   line_period: double;
+   # the normalized auto correlation score of the measured scan line period
+   line_score: double;
+   # the measured pixel clock (in samples per pixel)
+   pixel_pitch: double;
+   # the image raster matrix in the row major layout: <code>pixels(row)(column)</code>
    pixels: <a href="/vignettes/clr/System/Single[].html">Single[][]</a>;
+   # the number of the pixel cells inside a single scan line
    size: integer;
+   # the sample position of the sync pulse inside one scan line period
+   sync_offset: double;
+   # the image width in pixels (the number of the pixel cells inside a scan line)
+   width: integer;
 }
 </code>
         </pre>
@@ -56,4 +76,4 @@ export class PixelDecode {
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("clr_ts");</script>
 
-</html>
+</html>

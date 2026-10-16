@@ -34,26 +34,36 @@ export class FMTSubChunk extends <a href="/vignettes/clr/Microsoft/VisualBasic/D
    audioFormat: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/wFormatTag.html">wFormatTag</a>;
    # 8 bits = 8, 16 bits = 16, etc.
    BitsPerSample: integer;
-   # ```
-   #  NumChannels * BitsPerSample / 8
-   #  ```
-   #  
-   #  The number Of bytes For one sample including
-   #  all channels. I wonder what happens When
-   #  this number isn't an integer?
+   # <pre><code> NumChannels * BitsPerSample / 8</code></pre>
+   # 
+   # 
+   # The number Of bytes For one sample including all channels. I wonder what happens When this number isn't an integer?
    BlockAlign: integer;
    # (bytes_per sec) 音频的码率，每秒播放的字节数。
    # 
-   # <pre><code class=""> SampleRate * NumChannels * BitsPerSample / 8
-   # </code></pre>
+   # 
+   # <pre><code> SampleRate * NumChannels * BitsPerSample / 8</code></pre>
    ByteRate: integer;
-   channels: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/Channels.html">Channels</a>;
+   # Size of the extension (0 for standard formats, &gt;= 22 for EXTENSIBLE)
+   cbSize: integer;
+   # Speaker position bitmask (EXTENSIBLE only)
+   ChannelMask: integer;
+   # Number of audio channels (1=Mono, 2=Stereo, 6=5.1 surround, etc.)
+   channels: integer;
    chunkID: string;
    chunkSize: integer;
+   # Gets the effective audio format. For EXTENSIBLE format, this resolves from the SubFormat GUID. For standard formats, this equals <a href="cref:P:Microsoft.VisualBasic.Data.Wave.FMTSubChunk.audioFormat">FMTSubChunk.audioFormat</a>.
+   effectiveAudioFormat: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/wFormatTag.html">wFormatTag</a>;
    # Pulse Code Modulation
    isPCM: boolean;
    # 22.05KHz/44.1kHz/48KHz
    SampleRate: integer;
+   # Number of bytes per sample frame (channels * bitsPerSample / 8). Handles non-integer byte counts (e.g. 24-bit = 3 bytes/channel).
+   sampleSizeBytes: integer;
+   # SubFormat GUID (EXTENSIBLE only, maps to PCM or IEEE Float)
+   SubFormat: <a href="/vignettes/clr/System/Guid.html">Guid</a>;
+   # Number of valid bits per sample (EXTENSIBLE only, may differ from BitsPerSample)
+   ValidBitsPerSample: integer;
 }
 </code>
         </pre>
@@ -63,7 +73,8 @@ export class FMTSubChunk extends <a href="/vignettes/clr/Microsoft/VisualBasic/D
         <ol>
 <li>this class extends from <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/SubChunk.html">SubChunk</a> class: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/SubChunk.html">SubChunk</a></li>
 <li>use by <i>property</i> member <code>audioFormat</code>: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/wFormatTag.html">wFormatTag</a></li>
-<li>use by <i>property</i> member <code>channels</code>: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/Channels.html">Channels</a></li>
+<li>use by <i>property</i> member <code>effectiveAudioFormat</code>: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/wFormatTag.html">wFormatTag</a></li>
+<li>use by <i>property</i> member <code>SubFormat</code>: <a href="/vignettes/clr/System/Guid.html">Guid</a></li>
 </ol>
 
 
@@ -78,4 +89,4 @@ export class FMTSubChunk extends <a href="/vignettes/clr/Microsoft/VisualBasic/D
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("clr_ts");</script>
 
-</html>
+</html>

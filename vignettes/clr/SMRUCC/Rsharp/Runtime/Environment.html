@@ -32,6 +32,8 @@
             <code id="clr_ts">
 # namespace SMRUCC.Rsharp.Runtime
 export class Environment {
+   # the debugger context object for the current R# interpreter runtime
+   debugger: <a href="/vignettes/clr/SMRUCC/Rsharp/Interpreter/DebuggerContext.html">DebuggerContext</a>;
    # 导入的函数列表
    funcSymbols: <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/SymbolSet.html">SymbolSet</a>;
    # the global environment
@@ -39,7 +41,7 @@ export class Environment {
    # It is the top level global environment?
    isGlobal: boolean;
    isLINQContext: boolean;
-   # get value of the special last variable in R# <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/Environment.html">Environment</a>
+   # get value of the special last variable in R# <a href="cref:T:SMRUCC.Rsharp.Runtime.Environment">Environment</a>
    last: <i>any</i> kind;
    # 主要是存储警告消息
    messages: <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/Components/Message.html">iterates(Message)</a>;
@@ -47,7 +49,7 @@ export class Environment {
    parent: <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/Environment.html">Environment</a>;
    # The name of this current stack closure.(R function name, closure id, etc)
    stackFrame: <a href="/vignettes/clr/Microsoft/VisualBasic/ApplicationServices/Debugging/Diagnostics/StackFrame.html">StackFrame</a>;
-   # @<code>M:SMRUCC.Rsharp.Runtime.Internal.debug.getEnvironmentStack(SMRUCC.Rsharp.Runtime.Environment)</code>
+   # <a href="cref:M:SMRUCC.Rsharp.Runtime.Internal.debug.getEnvironmentStack(SMRUCC.Rsharp.Runtime.Environment)">debug.getEnvironmentStack()</a>
    stackTrace: <a href="/vignettes/clr/Microsoft/VisualBasic/ApplicationServices/Debugging/Diagnostics/StackFrame.html">StackFrame[]</a>;
 }
 </code>
@@ -56,6 +58,7 @@ export class Environment {
         <h3>.NET clr type reference tree</h3>
 
         <ol>
+<li>use by <i>property</i> member <code>debugger</code>: <a href="/vignettes/clr/SMRUCC/Rsharp/Interpreter/DebuggerContext.html">DebuggerContext</a></li>
 <li>use by <i>property</i> member <code>funcSymbols</code>: <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/SymbolSet.html">SymbolSet</a></li>
 <li>use by <i>property</i> member <code>last</code>: <i>any</i> kind</li>
 <li>use by <i>property</i> member <code>messages</code>: <a href="/vignettes/clr/SMRUCC/Rsharp/Runtime/Components/Message.html">iterates(Message)</a></li>
@@ -75,4 +78,4 @@ export class Environment {
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("clr_ts");</script>
 
-</html>
+</html>

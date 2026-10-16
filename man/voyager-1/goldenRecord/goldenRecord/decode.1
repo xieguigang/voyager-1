@@ -1,65 +1,63 @@
 .\" man page create by R# package system.
-.TH GOLDENRECORD 1 2000-Jan "decode" "decode"
+.TH GOLDENRECORD 1 2000-1月 "decode" "decode"
 .SH NAME
-decode \- Decode the wav data as the image pixels
+decode \- Decode the wav data as the image pixels.
 .SH SYNOPSIS
-\fIdecode(\fBwav\fR as <generic> WaveFile,
-\fBchunk\fR as <generic> ImageChunk,
-\fBdecode\fR as <generic> DecoderArgument,
-\fBsize\fR as integer = 0,
-\fBoffsetLeft\fR as double = 0.2,
-\fBoffsetRight\fR as double = 0.2,
-\fBpixels\fR as integer = 0,
-\fBlines\fR as integer = 0,
-\fBalign\fR as boolean = TRUE,
-\fBguard\fR as double = 0,
-\fBmode\fR as string = "mean",
+\fIdecode(\fBwav\fR as <generic> WaveFile, 
+\fBchunk\fR as <generic> ImageChunk, 
+\fBdecode\fR as <generic> DecoderArgument, 
+\fBsize\fR as integer = 0, 
+\fBoffsetLeft\fR as double = 0.2, 
+\fBoffsetRight\fR as double = 0.2, 
+\fBpixels\fR as integer = 0, 
+\fBlines\fR as integer = 0, 
+\fBalign\fR as boolean = TRUE, 
+\fBguard\fR as double = 0, 
+\fBmode\fR as string = "mean", 
 [\fB<Environment>\fR]);\fR
 .SH DESCRIPTION
 .PP
-Decode the wav data as the image pixels
-.PP
-the scan line period and the pixel clock are measured from the waveform data
-itself (see the \fBdecode.report\fR function for the empirical analysis), the
-\fBoffsetLeft\fR/\fBoffsetRight\fR parameters of the original implementation are
-kept only for the backward compatibility of the existing scripts.
+Decode the wav data as the image pixels.
+ 
+ the scan line period and the pixel clock are measured from the waveform data
+ itself (see the \fBdecode.report\fR function for the empirical analysis), the
+ \fBoffsetLeft\fR/\fBoffsetRight\fR parameters of the original implementation are
+ kept only for the backward compatibility of the existing scripts.
 .PP
 .SH OPTIONS
 .PP
-\fBwav\fB \fR\- -.
+\fBwav\fB \fR\- -. 
 .PP
 .PP
-\fBchunk\fB \fR\- the image data section on the wave file.
+\fBchunk\fB \fR\- -. 
 .PP
 .PP
-\fBdecode\fB \fR\- the decoder arguments, the invalid values are filled by the measured ones.
+\fBdecode\fB \fR\- the decoder arguments, the invalid values are filled by the measured ones. 
 .PP
 .PP
-\fBsize\fB \fR\- 0. the pixel cells (the image rows) per scan line, 0 for the default 364.
+\fBsize\fB \fR\- the pixel cells (the image rows) per scan line, 0 for the default 364. 
 .PP
 .PP
-\fBoffsetLeft\fB \fR\- 0.2. the legacy parameter of the original implementation.
+\fBpixels\fB \fR\- the alias of the \fBsize\fR parameter, the value of \fBsize\fR wins when both are assigned. 
 .PP
 .PP
-\fBoffsetRight\fB \fR\- 0.2. the legacy parameter of the original implementation.
+\fBlines\fB \fR\- the number of the scan lines (the image columns), 0 for the default 512. 
 .PP
 .PP
-\fBpixels\fB \fR\- 0. the alias of the \fBsize\fR parameter, the value of \fBsize\fR wins when both are assigned.
+\fBalign\fB \fR\- apply the per scan line synchronization. 
 .PP
 .PP
-\fBlines\fB \fR\- 0. the number of the scan lines (the image columns), 0 for the default 512.
+\fBguard\fB \fR\- the samples which are skipped after the sync pulse position. 
 .PP
 .PP
-\fBalign\fB \fR\- TRUE. apply the per scan line synchronization.
+\fBmode\fB \fR\- 
+ the pixel cell intensity estimator: \fBmean\fR (the default, the signed mean of
+ the cell samples, it matches the legacy decoder result), \fBabs\fR (the rectified
+ mean) or \fBrms\fR. the rectified estimators are much noisier.
+. 
 .PP
 .PP
-\fBguard\fB \fR\- 0. the samples which are skipped after the sync pulse position.
-.PP
-.PP
-\fBmode\fB \fR\- "mean". the pixel cell intensity estimator: \fBmean\fR (the default, the signed mean of the cell samples, it matches the legacy decoder result), \fBabs\fR (the rectified mean) or \fBrms\fR. the rectified estimators are much noisier.
-.PP
-.PP
-\fBenv\fB \fR\- -.
+\fBenv\fB \fR\- -. 
 .PP
 .SH SEE ALSO
 goldenRecord

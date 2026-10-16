@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>make batch export of the images on the disk</title>
+    <title>A pre-defined list of the image locations</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../../_assets/page.css">
@@ -18,16 +18,20 @@
             </tr>
         </table>
 
-        <h2>make batch export of the images on the disk</h2>
+        <h2>A pre-defined list of the image locations</h2>
 
         <h3>Description</h3>
 
-        
+        <p>the frame length of an image data section, the calibration circle image section is about 1928181 sample frames long the pixel cells (the image rows) inside a single scan line the number of the scan lines (the image columns) of a single image make batch export of the images on the disk</p>
 
         <h3>Usage</h3>
 
         <div style="width: 100%; padding-left: 3%; color: black;">
-            <pre><code class='language-R' style="color: black; font-weight:normal;"><strong>export_from_chunks</strong>(<i>wavFile</i>, <i>output.dir</i>);</code></pre>
+            <pre><code class='language-R' style="color: black; font-weight:normal;"><strong>export_from_chunks</strong>(<i>wavFile</i>, <i>output.dir</i>,
+    <i>size</i> = image_pixel_size,
+    <i>lines</i> = image_scan_lines,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>);</code></pre>
         </div>
 
         <h3>Arguments</h3>
@@ -40,6 +44,22 @@
 
 <dt>output.dir</dt>
 <dd><p><p>the directory path for export the image files</p></p></dd>
+
+
+<dt>size</dt>
+<dd><p><p>the pixel cells (the image rows) inside a single scan line</p></p></dd>
+
+
+<dt>lines</dt>
+<dd><p><p>the number of the scan lines (the image columns)</p></p></dd>
+
+
+<dt>smooth</dt>
+<dd><p><p>the radius of the across scan line smoothing</p></p></dd>
+
+
+<dt>report</dt>
+<dd><p><p>print the empirical analysis report of every image section</p></p></dd>
 
         </table>
 
@@ -71,4 +91,4 @@
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("example_r");</script>
 
-</html>
+</html>

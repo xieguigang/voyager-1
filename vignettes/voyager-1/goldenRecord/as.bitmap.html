@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>as.bitmap</title>
+    <title>render the decoded pixels as a gray scale or a pseudo color bitmap image.</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../../_assets/page.css">
@@ -18,23 +18,65 @@
             </tr>
         </table>
 
-        <h2>as.bitmap</h2>
+        <h2>render the decoded pixels as a gray scale or a pseudo color bitmap image.</h2>
 
         <h3>Description</h3>
 
-        as.bitmap
+        <p>&lt;br /&gt; the intensity data is normalized by the percentile based auto levels, and the&lt;br /&gt; polarity is inverted by default because the image data of the golden record is&lt;br /&gt; stored as a photographic negative.</p>
 
         <h3>Usage</h3>
 
         <div style="width: 100%; padding-left: 3%; color: black;">
             <pre><code class='language-R' style="color: black; font-weight:normal;"><strong>as.bitmap</strong>(<i>pixels</i>,
-    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>);</code></pre>
+    <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
+    <i>white</i> = <span style='color: green;'>1</span>,
+    <i>gamma</i> = <span style='color: green;'>1</span>,
+    <i>invert</i> = <span style='color: blue !important;'>TRUE</span>,
+    <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
+    <i>palette</i> = <span style='color: #808080;'><strong>"gray"</strong></span>,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
+    <i>height</i> = <span style='color: green;'>0</span>);</code></pre>
         </div>
 
         <h3>Arguments</h3>
 
         <table>
             
+<dt>pixels</dt>
+<dd><p>[as <a href="/vignettes/clr/voyager_1/PixelDecode.html">PixelDecode</a>]</p></dd>
+
+
+<dt>luminous</dt>
+<dd><p>render as a pseudo color image. [as boolean]</p></dd>
+
+
+<dt>white</dt>
+<dd><p>the white point gain, 0 or 1 means no adjustment. [as double]</p></dd>
+
+
+<dt>gamma</dt>
+<dd><p>the gamma correction, 1 means no correction. [as double]</p></dd>
+
+
+<dt>invert</dt>
+<dd><p>the black/white polarity. [as boolean]</p></dd>
+
+
+<dt>percentile</dt>
+<dd><p>the black point and the white point percentiles, like <code>c(0.005, 0.995)</code>. [as double]</p></dd>
+
+
+<dt>palette</dt>
+<dd><p>the palette name of the pseudo color rendering. [as string]</p></dd>
+
+
+<dt>smooth</dt>
+<dd><p>the radius of the across scan line smoothing, 0 for disable. [as integer]</p></dd>
+
+
+<dt>height</dt>
+<dd><p>the output image height in pixels, 0 for keep the original size. [as integer]</p></dd>
+
         </table>
 
 
@@ -65,4 +107,4 @@
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("example_r");</script>
 
-</html>
+</html>

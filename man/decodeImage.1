@@ -1,4 +1,4 @@
-﻿.TH DECODEIMAGE 1 2024-Nov "" "Decode a grayscale image on the disk"
+﻿.TH DECODEIMAGE 1 2026-10月 "" "Decode a grayscale image on the disk"
 .SH NAME
 decodeImage \- decodeImage(start, wavFile,
     <i>size</i> = <span style='color: green;'>364</span>,
@@ -6,7 +6,7 @@ decodeImage \- decodeImage(start, wavFile,
     <i>white</i> = <span style='color: green;'>1</span>,
     <i>gamma</i> = <span style='color: green;'>1</span>,
     <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
-    <i>palette</i> = <span style='color: green;'>"gray"</span>,
+    <i>palette</i> = <span style='color: #808080;'><strong>'gray'</strong></span>,
     <i>smooth</i> = <span style='color: green;'>0</span>,
     <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
     <i>report</i> = <span style='color: blue !important;'>FALSE</span>)
@@ -17,10 +17,16 @@ decodeImage \- decodeImage(start, wavFile,
     <i>white</i> = <span style='color: green;'>1</span>,
     <i>gamma</i> = <span style='color: green;'>1</span>,
     <i>percentile</i> = <span style='color: blue !important;'>NULL</span>,
-    <i>palette</i> = <span style='color: green;'>"gray"</span>,
+    <i>palette</i> = <span style='color: #808080;'><strong>'gray'</strong></span>,
     <i>smooth</i> = <span style='color: green;'>0</span>,
     <i>luminous</i> = <span style='color: blue !important;'>FALSE</span>,
     <i>report</i> = <span style='color: blue !important;'>FALSE</span>)\fR
+.SH DESCRIPTION
+.PP
+the scan line period and the pixel clock are measured from the waveform data
+itself (see the ``decode.report`` function), the legacy ``windowSize`` and
+``offset`` parameters of the decoder are not used any more.
+.PP
 .SH OPTIONS
 .PP
 \fBstart\fB \fR\- . the data start position on the raw wav file
@@ -29,10 +35,10 @@ decodeImage \- decodeImage(start, wavFile,
 \fBwavFile\fB \fR\- . the file path of the wav file
 .PP
 .PP
-\fBsize\fB \fR\- 364. the pixel cells (the image rows) inside a single scan line
+\fBsize\fB \fR\- 364. the pixel cells (the image rows) inside a single scan line, default 364
 .PP
 .PP
-\fBlines\fB \fR\- 512. the number of the scan lines (the image columns)
+\fBlines\fB \fR\- 512. the number of the scan lines (the image columns), default 512
 .PP
 .PP
 \fBwhite\fB \fR\- 1. the white point gain of the rendering, 1 means no adjustment
@@ -44,10 +50,12 @@ decodeImage \- decodeImage(start, wavFile,
 \fBpercentile\fB \fR\- NULL. the black point and the white point percentiles of the auto levels
 .PP
 .PP
-\fBpalette\fB \fR\- "gray". the palette name of the pseudo color rendering
+\fBpalette\fB \fR\- 'gray'. the palette name of the pseudo color rendering
 .PP
 .PP
-\fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing, 0 for disable (the smoothing reduces the edge contrast of the decoded image)
+\fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing, 0 for disable.
+the smoothing is disabled by default because it reduces the edge
+contrast of the decoded image and makes it look blurred
 .PP
 .PP
 \fBluminous\fB \fR\- FALSE. render the image as the pseudo color image
@@ -61,7 +69,7 @@ a bitmap image object
 .PP
 .SH FILES
 .PP
-SMRUCC/R#.declare_function.decodeImage at decoder.R:line 23
+SMRUCC/R#.declare_function.decodeImage at decoder.R:line 26
 .PP
 .SH COPYRIGHT
-Copyright © xieguigang, MIT Licensed 2024
+Copyright © xieguigang, MIT Licensed 2026

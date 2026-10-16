@@ -1,20 +1,36 @@
-﻿.TH EXPORT_FROM_CHUNKS 1 2024-Nov "" "make batch export of the images on the disk"
+﻿.TH EXPORT_FROM_CHUNKS 1 2026-10月 "" "A pre-defined list of the image locations"
 .SH NAME
-export_from_chunks \- export_from_chunks(wavFile, output.dir, size = 364, lines = 512, smooth = 0, report = FALSE)
+export_from_chunks \- export_from_chunks(wavFile, output.dir,
+    <i>size</i> = image_pixel_size,
+    <i>lines</i> = image_scan_lines,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>)
 .SH SYNOPSIS
-\fIexport_from_chunks(wavFile, output.dir, size = 364, lines = 512, smooth = 0, report = FALSE)\fR
+\fIexport_from_chunks(wavFile, output.dir,
+    <i>size</i> = image_pixel_size,
+    <i>lines</i> = image_scan_lines,
+    <i>smooth</i> = <span style='color: green;'>0</span>,
+    <i>report</i> = <span style='color: blue !important;'>FALSE</span>)\fR
+.SH DESCRIPTION
+.PP
+the frame length of an image data section, the calibration circle image
+section is about 1928181 sample frames long
+the pixel cells (the image rows) inside a single scan line
+the number of the scan lines (the image columns) of a single image
+make batch export of the images on the disk
+.PP
 .SH OPTIONS
 .PP
 \fBwavFile\fB \fR\- . the file path to the disk image in wave file
 .PP
 .PP
-\fBoutput.dir\fB \fR\- . the directory path for export the image files
+\fBoutput.dir\fB \fR\- . 
 .PP
 .PP
-\fBsize\fB \fR\- 364. the pixel cells (the image rows) inside a single scan line
+\fBsize\fB \fR\- image_pixel_size. the pixel cells (the image rows) inside a single scan line
 .PP
 .PP
-\fBlines\fB \fR\- 512. the number of the scan lines (the image columns)
+\fBlines\fB \fR\- image_scan_lines. the number of the scan lines (the image columns)
 .PP
 .PP
 \fBsmooth\fB \fR\- 0. the radius of the across scan line smoothing
@@ -24,7 +40,7 @@ export_from_chunks \- export_from_chunks(wavFile, output.dir, size = 364, lines 
 .PP
 .SH FILES
 .PP
-SMRUCC/R#.declare_function.export_from_chunks at chunks.R:line 24
+SMRUCC/R#.declare_function.export_from_chunks at chunks.R:line 28
 .PP
 .SH COPYRIGHT
-Copyright © xieguigang, MIT Licensed 2024
+Copyright © xieguigang, MIT Licensed 2026

@@ -24,6 +24,10 @@
 
         <p>The wav file model</p>
 
+<p>Waveform Audio File Format (WAVE, or WAV due to its filename extension; pronounced /wæv/ or /weɪv/) is an audio file format standard, developed by IBM and Microsoft, for storing an audio bitstream on personal computers. It is the main format used on Microsoft Windows systems for uncompressed audio. The usual bitstream encoding is the linear pulse-code modulation (LPCM) format.</p>
+
+<p>WAV Is an application Of the Resource Interchange File Format (RIFF) bitstream format method For storing data In chunks, And thus Is similar To the 8SVX And the Audio Interchange File Format (AIFF) format used On Amiga And Macintosh computers, respectively.</p>
+
         <h3>Declare</h3>        
 
         <pre>
@@ -34,23 +38,17 @@ export class WaveFile {
    data: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/SampleDataChunk.html">SampleDataChunk</a>;
    # <code>36 + SubChunk2Size</code>, or more precisely:
    # 
-   # <pre><code class=""> 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
-   # </code></pre>
+   # 
+   # <pre><code> 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)</code></pre>
    # 
    # 
-   #  
-   #  This Is the size of the rest of the chunk 
-   #  following this number.  This Is the size Of the 
-   #  entire file In bytes minus 8 bytes For the
-   #  two fields Not included In this count:
-   #  ChunkID And ChunkSize.
+   # This Is the size of the rest of the chunk following this number.  This Is the size Of the entire file In bytes minus 8 bytes For the two fields Not included In this count: ChunkID And ChunkSize.
    fileSize: integer;
    # Subchunk1
    fmt: <a href="/vignettes/clr/Microsoft/VisualBasic/Data/Wave/FMTSubChunk.html">FMTSubChunk</a>;
    # Contains the letters "WAVE" (0x57415645 big-endian form).
    format: string;
-   # Contains the letters "RIFF" in ASCII form (0x52494646 big-endian form).
-   #  Resource Interchange File Format.
+   # Contains the letters "RIFF" in ASCII form (0x52494646 big-endian form). Resource Interchange File Format.
    magic: string;
 }
 </code>
@@ -75,4 +73,4 @@ export class WaveFile {
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("clr_ts");</script>
 
-</html>
+</html>

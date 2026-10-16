@@ -22,7 +22,9 @@
 
         <h3>Description</h3>
 
-        
+        <p>the parameters of the golden record image decoder.</p>
+
+<p>the <code>windowSize</code> and the <code>offset</code> are the legacy parameters of the original implementation which cut a fixed sample window for locating the scan line start. the new decoding pipeline measures the scan line period and the pixel clock from the waveform data itself, so those two parameters are kept only for the backward compatibility of the existing R# scripts and they are no longer used.</p>
 
         <h3>Declare</h3>        
 
@@ -30,7 +32,31 @@
             <code id="clr_ts">
 # namespace voyager_1
 export class DecoderArgument {
+   # apply the per scan line synchronization for removing the residual jitter of the analog recording
+   align: boolean;
+   # the maximal per scan line alignment shift (in samples)
+   align_window: integer;
+   # the length (in samples) of the baseline tracking window, zero for the whole scan line mean value
+   baseline_window: integer;
+   # the number of the samples which are skipped after the sync pulse position
+   guard: double;
+   # the expected number of the scan lines of the image, zero for auto detect
+   lines: integer;
+   # the intensity estimator of a pixel cell, the default <code>Mean</code> mode is the signed mean of the cell samples (the legacy decoder estimator), the <code>Absolute</code>/<code>Rms</code> modes rectifies the samples and they are much noisier
+   mode: <a href="/vignettes/clr/voyager_1/DemodulationMode.html">DemodulationMode</a>;
+   # (legacy) the sync pulse offset of the original scan line locator
    offset: integer;
+   # the scan line period (in samples), zero for auto detect and refine
+   period: double;
+   # the samples per pixel cell, zero means it is evaluated from the scan line period
+   pixel_pitch: double;
+   # the number of the pixel cells inside a single scan line
+   pixels: integer;
+   # remove the per scan line baseline drift before the amplitude rectification
+   remove_baseline: boolean;
+   # the legacy switch of the <code>Rms</code> intensity estimator, it overrides the <code>mode</code> property when it is enabled
+   use_rms: boolean;
+   # (legacy) the fixed sample window size of the original scan line locator
    windowSize: integer;
 }
 </code>
@@ -38,7 +64,9 @@ export class DecoderArgument {
 
         <h3>.NET clr type reference tree</h3>
 
-        this clr type has no other .net clr type reference.
+        <ol>
+<li>use by <i>property</i> member <code>mode</code>: <a href="/vignettes/clr/voyager_1/DemodulationMode.html">DemodulationMode</a></li>
+</ol>
 
 
         <hr />
@@ -52,4 +80,4 @@ export class DecoderArgument {
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("clr_ts");</script>
 
-</html>
+</html>

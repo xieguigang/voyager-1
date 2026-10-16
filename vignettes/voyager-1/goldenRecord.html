@@ -85,7 +85,17 @@ table caption {font-size:14px;font-weight:bolder;}
   <td id="decode">
     <a href="/vignettes/clr/voyager_1/DecoderArgument.html">decode: DecoderArgument</a>
   </td>
-  <td></td>
+  <td><p>the parameters of the golden record image decoder.</p>
+
+<p>the <code>windowSize</code> and the <code>offset</code> are the legacy parameters of the original implementation which cut a fixed sample window for locating the scan line start. the new decoding pipeline measures the scan line period and the pixel clock from the waveform data itself, so those two parameters are kept only for the backward compatibility of the existing R# scripts and they are no longer used.</p></td>
+</tr>
+<tr>
+  <td id="decode.report">
+    <a href="/vignettes/clr/voyager_1/DecodeReport.html">decode.report: DecodeReport</a>
+  </td>
+  <td><p>the empirical analysis report of a given image data section on the golden record wave file.</p>
+
+<p>all of the decoder parameters (scan line period, pixel clock, brightness encoding, color component) are measured from the real waveform data instead of guessing.</p></td>
 </tr></tbody>
       </table>
       <br />
@@ -96,13 +106,29 @@ table caption {font-size:14px;font-weight:bolder;}
   <td id="decode">
     <a href="./goldenRecord/decode.html">decode</a>
   </td>
-  <td><p>Decode the wav data as the pixel scans</p></td>
+  <td><p>Decode the wav data as the image pixels.</p>
+
+<p>the scan line period and the pixel clock are measured from the waveform data itself (see the <code>decode.report</code> function for the empirical analysis), the <code>offsetLeft</code>/<code>offsetRight</code> parameters of the original implementation are kept only for the backward compatibility of the existing scripts.</p></td>
+</tr>
+<tr>
+  <td id="decode.report">
+    <a href="./goldenRecord/decode.report.html">decode.report</a>
+  </td>
+  <td><p>the empirical analysis of an image data section: the scan line period, the pixel clock, the brightness encoding scheme, the left/right channel relationship and the color component detection result.</p></td>
+</tr>
+<tr>
+  <td id="write_csv">
+    <a href="./goldenRecord/write_csv.html">write_csv</a>
+  </td>
+  <td><p>write the image decode intensity data as csv file</p></td>
 </tr>
 <tr>
   <td id="as.bitmap">
     <a href="./goldenRecord/as.bitmap.html">as.bitmap</a>
   </td>
-  <td></td>
+  <td><p>render the decoded pixels as a gray scale or a pseudo color bitmap image.</p>
+
+<p>the intensity data is normalized by the percentile based auto levels, and the polarity is inverted by default because the image data of the golden record is stored as a photographic negative.</p></td>
 </tr>
 <tr>
   <td id="chunk_size">
@@ -115,4 +141,4 @@ table caption {font-size:14px;font-weight:bolder;}
     <hr />
     <div style="text-align: center;">[<a href="../index.html">Document Index</a>]</div>
   </body>
-</html>
+</html>

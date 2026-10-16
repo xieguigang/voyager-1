@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Decode the wav data as the pixel scans</title>
+    <title>Decode the wav data as the image pixels.</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../../_assets/page.css">
@@ -18,19 +18,24 @@
             </tr>
         </table>
 
-        <h2>Decode the wav data as the pixel scans</h2>
+        <h2>Decode the wav data as the image pixels.</h2>
 
         <h3>Description</h3>
 
-        
+        <p>&lt;br /&gt; the scan line period and the pixel clock are measured from the waveform data&lt;br /&gt; itself (see the <code>decode.report</code> function for the empirical analysis), the&lt;br /&gt; <code>offsetLeft</code>/<code>offsetRight</code> parameters of the original implementation are&lt;br /&gt; kept only for the backward compatibility of the existing scripts.</p>
 
         <h3>Usage</h3>
 
         <div style="width: 100%; padding-left: 3%; color: black;">
             <pre><code class='language-R' style="color: black; font-weight:normal;"><strong>decode</strong>(<i>wav</i>, <i>chunk</i>, <i>decode</i>,
-    <i>size</i> = <span style='color: green;'>364</span>,
+    <i>size</i> = <span style='color: green;'>0</span>,
     <i>offsetLeft</i> = <span style='color: green;'>0.2</span>,
-    <i>offsetRight</i> = <span style='color: green;'>0.2</span>);</code></pre>
+    <i>offsetRight</i> = <span style='color: green;'>0.2</span>,
+    <i>pixels</i> = <span style='color: green;'>0</span>,
+    <i>lines</i> = <span style='color: green;'>0</span>,
+    <i>align</i> = <span style='color: blue !important;'>TRUE</span>,
+    <i>guard</i> = <span style='color: green;'>0</span>,
+    <i>mode</i> = <span style='color: brown;'><strong>"mean"</strong></span>);</code></pre>
         </div>
 
         <h3>Arguments</h3>
@@ -46,11 +51,31 @@
 
 
 <dt>decode</dt>
-<dd><p>[as <a href="/vignettes/clr/voyager_1/DecoderArgument.html">DecoderArgument</a>]</p></dd>
+<dd><p>the decoder arguments, the invalid values are filled by the measured ones. [as <a href="/vignettes/clr/voyager_1/DecoderArgument.html">DecoderArgument</a>]</p></dd>
 
 
 <dt>size</dt>
-<dd><p>[as integer]</p></dd>
+<dd><p>the pixel cells (the image rows) per scan line, 0 for the default 364. [as integer]</p></dd>
+
+
+<dt>pixels</dt>
+<dd><p>the alias of the <code>size</code> parameter, the value of <code>size</code> wins when both are assigned. [as integer]</p></dd>
+
+
+<dt>lines</dt>
+<dd><p>the number of the scan lines (the image columns), 0 for the default 512. [as integer]</p></dd>
+
+
+<dt>align</dt>
+<dd><p>apply the per scan line synchronization. [as boolean]</p></dd>
+
+
+<dt>guard</dt>
+<dd><p>the samples which are skipped after the sync pulse position. [as double]</p></dd>
+
+
+<dt>mode</dt>
+<dd><p>the pixel cell intensity estimator: <code>mean</code> (the default, the signed mean of the cell samples, it matches the legacy decoder result), <code>abs</code> (the rectified mean) or <code>rms</code>. the rectified estimators are much noisier. [as string]</p></dd>
 
 
 <dt>env</dt>
@@ -86,4 +111,4 @@
 <script type="text/javascript" src="../../_assets/highlights.js"></script>
 <script type="text/javascript">r_highlights("example_r");</script>
 
-</html>
+</html>
